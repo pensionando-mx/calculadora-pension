@@ -1,0 +1,3576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- PROTECCIÓN DE CÓDIGO -->
+    <script>
+    (function() {
+        // ── CAPA 2: Deshabilitar clic derecho y teclas de inspector ──
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12') { e.preventDefault(); return false; }
+            if (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) { e.preventDefault(); return false; }
+            if (e.ctrlKey && e.key === 'U') { e.preventDefault(); return false; }
+            if (e.ctrlKey && e.key === 'S') { e.preventDefault(); return false; }
+        });
+
+        // ── CAPA 3: Detectar DevTools abierto ──
+        let devtoolsOpen = false;
+        const threshold = 160;
+        const detectDevTools = () => {
+            const widthDiff  = window.outerWidth  - window.innerWidth  > threshold;
+            const heightDiff = window.outerHeight - window.innerHeight > threshold;
+            if (widthDiff || heightDiff) {
+                if (!devtoolsOpen) {
+                    devtoolsOpen = true;
+                    document.body.innerHTML = `
+                        <div style="display:flex;align-items:center;justify-content:center;height:100vh;
+                            background:#0d1526;flex-direction:column;gap:1rem;font-family:'DM Sans',sans-serif;">
+                            <div style="font-size:3rem;">🔒</div>
+                            <div style="color:#cfb53b;font-size:1.4rem;font-weight:800;">Acceso bloqueado</div>
+                            <div style="color:rgba(255,255,255,0.5);font-size:0.9rem;">
+                                Herramienta protegida · Pensionando a México
+                            </div>
+                        </div>`;
+                }
+            } else {
+                devtoolsOpen = false;
+            }
+        };
+        setInterval(detectDevTools, 1000);
+
+        // ── CAPA 4: Validar dominio autorizado ──
+        const dominiosPermitidos = [
+            'calculadora-ley73.netlify.app',
+            'localhost',
+            '127.0.0.1',
+            ''  // archivo local para pruebas
+        ];
+        const hostActual = window.location.hostname;
+        const permitido  = dominiosPermitidos.some(d => hostActual === d || hostActual.endsWith(d));
+        if (!permitido) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.body.innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:center;height:100vh;
+                        background:#0d1526;flex-direction:column;gap:1rem;font-family:sans-serif;">
+                        <div style="font-size:3rem;">⛔</div>
+                        <div style="color:#ef4444;font-size:1.4rem;font-weight:800;">Dominio no autorizado</div>
+                        <div style="color:rgba(255,255,255,0.5);font-size:0.9rem;">
+                            Este software solo puede ejecutarse en dominios autorizados por Pensionando a México.
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // ── EXTRA: Deshabilitar selección de texto en zonas clave ──
+        document.addEventListener('selectstart', e => {
+            if (!e.target.matches('input, textarea')) e.preventDefault();
+        });
+
+    })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Pensión Ley 73 · IMSS Profesional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --oxford: #002147;
+            --oxford-dark: #001229;
+            --oxford-mid: #012d5e;
+            --oro: #CFB53B;
+            --oro-claro: #f0d060;
+            --oro-suave: #fdfbf5;
+            --gris-claro: #f4f6f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--oxford-dark);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* =============================================
+           PANTALLA DE ACCESO (LOGIN)
+        ============================================= */
+        #pantalla-acceso {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #001229 0%, #012d5e 50%, #001a3d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1rem;
+        }
+
+        /* Grid decorativo de fondo */
+        #pantalla-acceso::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(207,181,59,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(207,181,59,0.04) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        .login-card {
+            background: rgba(255,255,255,0.97);
+            border-radius: 16px;
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            border-top: 5px solid var(--oro);
+            position: relative;
+            animation: cardIn 0.5s ease both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .login-logo-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--oxford);
+        }
+        .login-logo-text span { color: var(--oro); }
+
+        .login-subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+            letter-spacing: 0.3px;
+        }
+
+        .login-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--oxford);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 0.9rem 1.1rem;
+            border: 2px solid #e0e4ea;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--oxford);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            text-align: center;
+            background: #f9fafb;
+        }
+        .login-input:focus {
+            outline: none;
+            border-color: var(--oro);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(207,181,59,0.15);
+        }
+        .login-input::placeholder {
+            color: #bbb;
+            letter-spacing: 1px;
+            text-transform: none;
+            font-weight: 400;
+            font-size: 0.9rem;
+        }
+
+        .btn-acceder {
+            width: 100%;
+            padding: 0.95rem;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, var(--oxford) 0%, var(--oxford-mid) 100%);
+            color: var(--oro);
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-acceder:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0,33,71,0.35);
+        }
+        .btn-acceder:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Spinner dentro del botón */
+        .btn-acceder .spinner {
+            display: none;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(207,181,59,0.3);
+            border-top-color: var(--oro);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #login-error {
+            display: none;
+            margin-top: 0.9rem;
+            padding: 0.75rem 1rem;
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            border-radius: 6px;
+            color: #b91c1c;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        #login-success {
+            display: none;
+            margin-top: 0.9rem;
+            padding: 0.75rem 1rem;
+            background: #f0fdf4;
+            border: 1px solid #86efac;
+            border-radius: 6px;
+            color: #15803d;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .login-dias-restantes {
+            display: none;
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .login-dias-restantes strong {
+            color: var(--oxford);
+            font-size: 1.1rem;
+        }
+
+        .login-footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .login-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.72rem;
+            color: #888;
+            font-weight: 500;
+        }
+        .login-badge span { font-size: 0.9rem; }
+
+        .login-comprar {
+            display: block;
+            text-align: center;
+            margin-top: 1.2rem;
+            font-size: 0.82rem;
+            color: #888;
+        }
+        .login-comprar a {
+            color: var(--oxford);
+            font-weight: 700;
+            text-decoration: none;
+            border-bottom: 1px solid var(--oro);
+            padding-bottom: 1px;
+        }
+
+        /* =============================================
+           APP PRINCIPAL (oculta hasta validar)
+        ============================================= */
+        #app-principal { display: none; }
+
+        /* NAV */
+        nav {
+            background: rgba(0,18,41,0.97);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(207,181,59,0.25);
+        }
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--oro);
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .logo span { color: #fff; }
+        .nav-right { display: flex; align-items: center; gap: 1rem; }
+        .nav-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .nav-badge {
+            background: rgba(207,181,59,0.1);
+            border: 1px solid rgba(207,181,59,0.3);
+            color: var(--oro);
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 0.22rem 0.6rem;
+            border-radius: 2rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Indicador de sesión activa */
+        .sesion-activa {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(21,128,61,0.15);
+            border: 1px solid rgba(21,128,61,0.3);
+            border-radius: 2rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.72rem;
+            color: #4ade80;
+            font-weight: 600;
+        }
+        .sesion-dot {
+            width: 7px; height: 7px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .btn-cerrar-sesion {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.72rem;
+            padding: 0.22rem 0.65rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cerrar-sesion:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+        /* HERO */
+        /* CALCULADORA */
+        .calc-wrapper { background: var(--oxford-dark); padding: 3rem 1.5rem 5rem; }
+        .section-label { max-width: 1400px; margin: 0 auto 1.5rem; }
+        .section-label-inner { display: flex; align-items: center; gap: 1rem; }
+        .step-pill {
+            background: var(--oro); color: var(--oxford-dark);
+            font-size: 0.7rem; font-weight: 800; padding: 0.3rem 0.8rem;
+            border-radius: 3px; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0;
+        }
+        .step-title { color: #fff; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; }
+        .step-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(207,181,59,0.4), transparent); }
+
+        .layout {
+            display: grid; grid-template-columns: 1fr 1.5fr;
+            gap: 20px; max-width: 1400px; margin: 0 auto;
+        }
+        .panel {
+            background: rgba(255,255,255,0.97); padding: 28px; border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-top: 4px solid var(--oro);
+        }
+        .panel h3 {
+            color: var(--oxford); margin-top: 0;
+            border-bottom: 1px solid rgba(0,33,71,0.12);
+            padding-bottom: 12px; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem;
+        }
+
+        textarea {
+            width: 100%; height: 350px; padding: 15px;
+            border: 2px dashed rgba(0,33,71,0.2); border-radius: 8px;
+            font-family: monospace; font-size: 13px; resize: vertical;
+            background: #fff; color: #000; margin-bottom: 15px; transition: border-color 0.2s;
+        }
+        textarea:focus { outline: none; border-color: var(--oro); }
+
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #fff; }
+        th, td { border: 1px solid #e0e4ea; padding: 10px; text-align: center; }
+        th { background: var(--oxford); color: #fff; font-size: 12px; font-weight: 600; }
+        input[type="date"], input[type="number"] {
+            width: 90%; padding: 8px; border: 1px solid #ccc;
+            border-radius: 4px; font-family: inherit; transition: border-color 0.2s;
+        }
+        input[type="date"]:focus, input[type="number"]:focus { outline: none; border-color: var(--oro); }
+
+        .btn {
+            background: var(--oxford); color: #fff; padding: 11px 18px;
+            border: none; cursor: pointer; border-radius: 6px;
+            font-weight: 600; font-size: 14px; transition: all 0.2s; width: 100%;
+        }
+        .btn:hover { background: var(--oxford-mid); transform: translateY(-1px); }
+        .btn-add { background: var(--oro); color: var(--oxford-dark); width: auto; padding: 9px 16px; }
+        .btn-add:hover { background: #b8a032; }
+        .btn-remove { background: #dc3545; color: #fff; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+
+        .results-panel {
+            background: linear-gradient(135deg, #eef2f8, #e6ecf4);
+            border-left: 5px solid var(--oxford);
+            padding: 20px; margin-top: 20px; border-radius: 8px;
+        }
+        .results-panel h3 { border: none; padding: 0; margin-bottom: 12px; font-size: 1rem; }
+        .result-item { font-size: 15px; margin: 8px 0; color: #444; }
+        .highlight { font-size: 2rem; color: var(--oxford); font-weight: 700; font-family: 'Cormorant Garamond', serif; }
+        .oro-text { color: #9a7a00; font-weight: 700; }
+
+        .transfer-wrap { max-width: 1400px; margin: 24px auto 0; text-align: center; }
+        .btn-transfer {
+            background: linear-gradient(135deg, var(--oro), var(--oro-claro));
+            color: var(--oxford-dark); padding: 16px 52px; font-size: 16px; font-weight: 700;
+            border: none; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 8px 28px rgba(207,181,59,0.4);
+            letter-spacing: 0.5px; text-transform: uppercase; transition: all 0.25s;
+        }
+        .btn-transfer:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(207,181,59,0.6); }
+        .transfer-note { color: rgba(255,255,255,0.35); font-size: 12px; margin-top: 8px; }
+
+        .sbc-badge {
+            display: none; background: rgba(207,181,59,0.12);
+            border: 1px solid rgba(207,181,59,0.35); border-radius: 6px;
+            padding: 10px 16px; font-size: 13px; color: #7a6010; font-weight: 600; margin-bottom: 16px;
+        }
+
+        .contenedor {
+            max-width: 1400px; margin: 0 auto; background: rgba(255,255,255,0.97);
+            padding: 36px; border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); border-top: 4px solid var(--oro);
+        }
+        .contenedor h1 {
+            color: var(--oxford); text-align: center;
+            border-bottom: 2px solid var(--oro); padding-bottom: 18px;
+            text-transform: uppercase; margin-top: 0;
+            font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; letter-spacing: 1px;
+        }
+
+        .seccion-captura {
+            background: var(--gris-claro); padding: 18px 20px;
+            border-radius: 8px; margin-bottom: 16px; border-left: 4px solid var(--oxford);
+        }
+        .seccion-captura h3 {
+            margin-top: 0; color: var(--oxford);
+            border-bottom: 1px solid rgba(0,33,71,0.1);
+            padding-bottom: 8px; margin-bottom: 14px;
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+        }
+
+        .campo { margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .campo label { font-weight: 500; color: #444; width: 65%; font-size: 14px; }
+        .campo input {
+            width: 30%; padding: 9px; border: 1px solid #d0d5de;
+            text-align: right; font-size: 14px; font-weight: 600;
+            border-radius: 6px; transition: border-color 0.2s;
+        }
+        .campo input:focus { outline: none; border-color: var(--oro); }
+        .campo input:disabled { background: #eee; color: #999; cursor: not-allowed; }
+        .campo input.auto-filled { background: rgba(207,181,59,0.1) !important; border-color: var(--oro) !important; color: #7a6010 !important; }
+
+        .explicacion-legal {
+            background: #eef2f7; padding: 15px 18px; border-radius: 8px;
+            font-size: 12px; line-height: 1.6; color: #555;
+            border: 1px solid #d1d9e6; margin-bottom: 20px;
+        }
+        .explicacion-legal strong { color: var(--oxford); }
+
+        .btn-calcular {
+            width: 100%; background: var(--oxford); color: var(--oro);
+            padding: 16px; font-size: 17px; font-weight: 700; border: none;
+            cursor: pointer; margin: 20px 0; text-transform: uppercase;
+            border-radius: 8px; transition: all 0.2s; letter-spacing: 0.5px;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .btn-calcular:hover { background: #001a3d; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,33,71,0.3); }
+
+        .res-tabla { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .res-tabla th, .res-tabla td { border: 1px solid #e0e4ea; padding: 11px 14px; font-size: 14px; }
+        .res-tabla th { background: var(--oxford); color: var(--oro); text-align: center; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
+        .res-tabla .num { text-align: right; font-family: monospace; font-size: 15px; }
+        .res-tabla .subtotal { background: #e8ecf2; font-weight: 700; color: var(--oxford); }
+        .res-tabla .rojo { color: #c0392b; font-weight: 700; }
+        .res-tabla .final { background: var(--oxford); color: #fff; font-size: 16px; font-weight: 700; }
+        .res-tabla .final td.num { color: var(--oro-claro); }
+        .res-tabla .isr-block { background: #f0f4fe; }
+
+        .alerta-exclusion { color: #c0392b; font-size: 11px; font-weight: 600; margin-top: 5px; display: none; }
+
+        .paso-divisor-wrap { max-width: 1400px; margin: 2.5rem auto; padding: 0 1.5rem; }
+        .paso-divisor { border: none; border-top: 1px dashed rgba(207,181,59,0.25); }
+
+        #transfer-confirm {
+            display: none; margin-top: 14px; padding: 12px 16px;
+            background: #d4edda; border: 1px solid #28a745;
+            border-radius: 8px; font-size: 14px; color: #155724; font-weight: 600;
+        }
+
+        footer {
+            background: var(--oxford-dark);
+            border-top: 1px solid rgba(207,181,59,0.15);
+            padding: 2rem; text-align: center;
+        }
+        footer p { color: rgba(255,255,255,0.3); font-size: 0.78rem; line-height: 1.7; max-width: 640px; margin: 0 auto; }
+        footer strong { color: var(--oro); font-weight: 600; }
+
+        @media (max-width: 900px) {
+            .layout { grid-template-columns: 1fr; }
+            .badge-cred { padding: 0.75rem 1.2rem; }
+            .badge-cred:not(:last-child)::after { display: none; }
+            nav { padding: 0.8rem 1rem; }
+            .nav-badges { display: none; }
+        }
+
+        /* =============================================
+           MODAL ADVERTENCIA REPORTE CONSOLIDADO
+        ============================================= */
+        #modal-advertencia {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            animation: fadeInModal 0.2s ease both;
+        }
+        #modal-advertencia.visible {
+            display: flex;
+        }
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        .modal-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 2.2rem 2rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            border-top: 5px solid #dc3545;
+            animation: slideUpModal 0.3s ease both;
+        }
+        @keyframes slideUpModal {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .modal-icono {
+            width: 52px; height: 52px;
+            background: #fff3f3;
+            border: 2px solid #fca5a5;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.1rem;
+        }
+        .modal-titulo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #b91c1c;
+            margin-bottom: 0.6rem;
+        }
+        .modal-cuerpo {
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.65;
+            margin-bottom: 1.4rem;
+        }
+        .modal-cuerpo strong { color: #111; }
+        .modal-diferencias {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1.4rem;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: #444;
+        }
+        .modal-diferencias .tag-ok {
+            display: inline-block;
+            background: #dcfce7; color: #15803d;
+            font-weight: 700; font-size: 0.7rem;
+            padding: 0.1rem 0.45rem; border-radius: 3px;
+            margin-right: 0.3rem; vertical-align: middle;
+        }
+        .modal-diferencias .tag-no {
+            display: inline-block;
+            background: #fee2e2; color: #b91c1c;
+            font-weight: 700; font-size: 0.7rem;
+            padding: 0.1rem 0.45rem; border-radius: 3px;
+            margin-right: 0.3rem; vertical-align: middle;
+        }
+        .modal-pregunta {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 1rem;
+        }
+        .modal-botones {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .modal-btn-cancelar {
+            flex: 1;
+            padding: 0.8rem;
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-btn-cancelar:hover { background: #e5e7eb; }
+        .modal-btn-continuar {
+            flex: 1;
+            padding: 0.8rem;
+            background: #b91c1c;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-btn-continuar:hover { background: #991b1b; transform: translateY(-1px); }
+        .modal-nota-imss {
+            margin-top: 1.1rem;
+            padding: 0.7rem 0.9rem;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            color: #92400e;
+            line-height: 1.5;
+        }
+        .modal-nota-imss strong { color: #78350f; }
+    </style>
+</head>
+<body>
+
+<!-- =============================================
+     PANTALLA DE ACCESO
+============================================= -->
+<div id="pantalla-acceso">
+    <div class="login-card">
+        <div class="login-logo">
+            <div class="login-logo-text">Pensión<span>Ley73</span></div>
+        </div>
+        <p class="login-subtitle">Calculadora de Pensión IMSS · Acceso con licencia</p>
+
+        <label class="login-label" for="input-codigo">Tu código de acceso</label>
+        <input
+            type="text"
+            id="input-codigo"
+            class="login-input"
+            placeholder="ej. LEY73-XXXX-XXXX"
+            maxlength="20"
+            autocomplete="off"
+            spellcheck="false"
+        >
+
+        <button class="btn-acceder" id="btn-acceder" onclick="validarAcceso()">
+            <span id="btn-texto">Acceder →</span>
+            <div class="spinner" id="btn-spinner"></div>
+        </button>
+
+        <div id="login-error"></div>
+        <div id="login-success"></div>
+        <div class="login-dias-restantes" id="login-dias"></div>
+
+        <div class="login-footer">
+            <div class="login-badge"><span>⚖️</span> ✅ Ley 73</div>
+            <div class="login-badge"><span>📋</span> UMA 2026</div>
+            <div class="login-badge"><span>🛡️</span> Art. 138 LSS</div>
+            <div class="login-badge"><span>💰</span> ISR incluido</div>
+        </div>
+
+        <p class="login-comprar">
+            ¿No tienes código? <a href="https://wa.me/527331470062?text=Hola%2C%20quiero%20acceso%20a%20la%20Calculadora%20de%20Pensi%C3%B3n%20Ley%2073%20%F0%9F%91%8D" target="_blank">Solicita tu acceso aquí</a>
+        </p>
+    </div>
+</div>
+
+<!-- =============================================
+     APP PRINCIPAL
+============================================= -->
+<div id="app-principal">
+
+    <!-- NAV -->
+    <nav style="flex-direction:column;align-items:center;padding:1.2rem 2rem 0.8rem;text-align:center;gap:0.4rem;">
+        <!-- LOGO GRANDE CENTRADO -->
+        <div style="display:flex;flex-direction:column;align-items:center;line-height:1.15;">
+            <div class="logo" style="font-size:3rem;letter-spacing:-0.5px;">Pensión<span>Ley73</span></div>
+            <div style="font-size:0.85rem;color:rgba(207,181,59,0.9);letter-spacing:0.6px;margin-top:4px;font-style:italic;font-weight:500;">En 1 minuto · Calcula tu Pensión con precisión legal</div>
+            <div style="font-size:0.65rem;color:rgba(207,181,59,0.45);letter-spacing:0.5px;margin-top:3px;">© 2026 Pensionando a México · Todos los derechos reservados</div>
+        </div>
+        <!-- BADGES + SESIÓN -->
+        <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;">
+            <span class="nav-badge">100% Profesional</span>
+            <span class="nav-badge">UMA 2026</span>
+            <span class="nav-badge">Tablas IMSS</span>
+            <div class="sesion-activa">
+                <div class="sesion-dot"></div>
+                <span id="nav-codigo-activo">—</span>
+            </div>
+            <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Salir</button>
+        </div>
+    </nav>
+
+    <div class="calc-wrapper" id="inicio-calc">
+
+        <div class="section-label">
+            <div class="section-label-inner">
+                <span class="step-pill">Paso 1</span>
+                <span class="step-title">Salario Base de Cotización — Últimas 250 Semanas</span>
+                <div class="step-line"></div>
+            </div>
+        </div>
+
+        <div class="layout">
+            <div class="panel">
+                <h3>Pega el Reporte IMSS</h3>
+                <p style="font-size:13px;color:#666;margin-bottom:12px;">Pega el texto crudo. El motor lo limpiará y armará la tabla a la derecha.</p>
+                <textarea id="imssText" placeholder="Pega aquí todo el texto de la constancia de semanas cotizadas...&#10;&#10;El sistema detectará:&#10;• ALTA / REINGRESO → inicio de periodo&#10;• BAJA → fin de periodo&#10;• Fechas y salarios registrados"></textarea>
+                <button class="btn" onclick="extraerATabla()">⬇️ Extraer y Preparar Tabla</button>
+                <div id="badge-tipo-reporte" style="display:none;margin-top:10px;padding:8px 12px;border-radius:6px;font-size:13px;font-weight:600;border:1px solid;align-items:center;gap:6px;"></div>
+            </div>
+
+            <div class="panel">
+                <h3>Verificación y Cálculo (Regla +1 día · Tope 1,750 días)</h3>
+
+                <!-- AVISO CONFIGURACIÓN CHROME -->
+                <div style="display:flex;align-items:flex-start;gap:0.7rem;background:#1a1a2e;border:1.5px solid #cfb53b;border-radius:8px;padding:0.8rem 1rem;margin-bottom:14px;font-size:0.78rem;line-height:1.6;">
+                    <span style="font-size:1.2rem;margin-top:1px;">⚙️</span>
+                    <span style="color:#ffffff;">
+                        <strong style="color:#cfb53b;font-size:0.82rem;">Fechas en formato DD/MM/AAAA</strong> — igual que el reporte IMSS.<br>
+                        <span style="color:#cccccc;">Si tu navegador muestra MM/DD/AAAA, configura Chrome:</span>
+                        <strong style="color:#ffffff;">Configuración → Idiomas → Agregar "Español (México)" → moverlo al inicio → Reiniciar Chrome</strong>
+                    </span>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <button class="btn btn-add" onclick="agregarFila()">+ Agregar Fila Manual</button>
+                    <button class="btn" style="width:auto" onclick="calcularSBC()">⚡ Calcular SBC Exacto</button>
+                </div>
+                <table id="sbcTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha Inicio</th><th>Fecha Término</th><th>Salario ($)</th>
+                            <th>Días (+1)</th><th>Acumulado ($)</th><th>—</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sbcBody">
+                        <tr id="fila-vacia">
+                            <td colspan="6" style="color:#aaa;font-size:12px;padding:20px;font-style:italic">
+                                Pega la constancia y haz clic en "Extraer" — o usa "+ Agregar Fila Manual"
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="results-panel" id="results" style="display:none">
+                    <h3>Diagnóstico de las Últimas 250 Semanas</h3>
+                    <div class="result-item">Total de Días Computados: <span id="resDias" class="oro-text">0</span> / 1,750</div>
+                    <div class="result-item">Suma Total de Salarios: $<span id="resSuma">0.00</span></div>
+                    <hr style="border:0;border-top:1px solid #ccc;margin:14px 0">
+                    <div class="result-item" style="font-size:13px;color:#666;">SBC Promedio (Topado a 1,750 días):</div>
+                    <div><span class="highlight" id="resSBC">$0.00</span></div>
+                    <div id="transfer-confirm">
+                        ✅ SBC de <span id="transfer-confirm-val"></span> copiado automáticamente ↓
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="transfer-wrap">
+            <button class="btn-transfer" onclick="transferirSBC()">✦ Usar este SBC en la Calculadora de Pensión ↓</button>
+            <div class="transfer-note">El salario se copiará automáticamente al campo de abajo</div>
+        </div>
+
+        <div class="paso-divisor-wrap"><hr class="paso-divisor"></div>
+
+        <div class="section-label">
+            <div class="section-label-inner">
+                <span class="step-pill">Paso 2</span>
+                <span class="step-title">Calculadora de Pensión IMSS — Ley 73</span>
+                <div class="step-line"></div>
+            </div>
+        </div>
+
+        <div class="contenedor" id="seccion-pension">
+            <h1>Calculadora de Pensión IMSS</h1>
+
+            <div class="sbc-badge" id="sbc-badge">
+                ✦ SBC transferido: <span id="sbc-badge-val"></span> / día
+            </div>
+
+            <!-- LEYENDA CAPTURA MANUAL -->
+            <div style="background:linear-gradient(135deg,var(--oxford),var(--oxford-mid));border-radius:12px;padding:1.4rem 1.8rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;box-shadow:0 6px 20px rgba(0,33,71,0.25);">
+                <div style="width:44px;height:44px;background:var(--oro);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">✏️</div>
+                <div>
+                    <div style="color:var(--oro);font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:700;letter-spacing:0.5px;margin-bottom:0.2rem;">
+                        CAPTURE LOS DATOS SOLICITADOS
+                    </div>
+                    <div style="color:rgba(255,255,255,0.75);font-size:0.8rem;line-height:1.5;">
+                        Consulta tu reporte IMSS en <strong style="color:rgba(255,255,255,0.95)">serviciosdigitales.imss.gob.mx</strong> e ingresa los datos a continuación
+                    </div>
+                </div>
+            </div>
+
+            <div class="seccion-captura" style="background:linear-gradient(135deg,#eef2f8,#e6ecf4);border-left:4px solid var(--oro);">
+                <h3 style="color:var(--oxford)">0. Identificación del Trabajador</h3>
+                <div class="campo"><label>Nombre Completo:</label><input type="text" id="v_nombre" placeholder="Apellido Paterno Materno Nombre(s)" style="text-align:left;font-weight:500;text-transform:uppercase"></div>
+                <div class="campo"><label>Número de Seguridad Social (NSS):</label><input type="text" id="v_nss" placeholder="00000000000" maxlength="11" style="text-align:left;font-weight:500;letter-spacing:2px"></div>
+            </div>
+
+            <div class="seccion-captura">
+                <h3>1. Datos Laborales</h3>
+                <div class="campo">
+                    <label>Edad Actual del Trabajador (años):</label>
+                    <input type="number" id="v_edad" value="60" min="40" max="80" onchange="verificarEdadRetiro()" oninput="verificarEdadRetiro()">
+                </div>
+                <!-- Aviso edad menor a 60 -->
+                <div id="aviso-edad" style="display:none;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #f59e0b;border-radius:10px;padding:1rem 1.2rem;margin:0.5rem 0 0.8rem 0;">
+                    <div style="display:flex;align-items:flex-start;gap:0.8rem;">
+                        <div style="font-size:1.5rem;flex-shrink:0;">⚠️</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:700;color:#92400e;font-size:0.95rem;margin-bottom:0.4rem;">
+                                El trabajador aún no tiene 60 años
+                            </div>
+                            <div style="color:#78350f;font-size:0.85rem;line-height:1.6;" id="aviso-edad-texto"></div>
+                            <div style="margin-top:0.8rem;display:flex;gap:0.6rem;flex-wrap:wrap;">
+                                <button onclick="usarSemanasProyectadas()" id="btn-proyectar"
+                                    style="background:#92400e;color:#fff;border:none;padding:0.5rem 1.1rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s;"
+                                    onmouseover="this.style.background='#78350f'" onmouseout="this.style.background='#92400e'">
+                                    ✅ Sí, usar semanas proyectadas
+                                </button>
+                                <button onclick="usarSemanasActuales()"
+                                    style="background:#fef3c7;color:#92400e;border:1.5px solid #f59e0b;padding:0.5rem 1.1rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;"
+                                    onmouseover="this.style.background='#fde68a'" onmouseout="this.style.background='#fef3c7'">
+                                    No, calcular con semanas actuales
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="campo"><label>Semanas Cotizadas:</label><input type="number" id="v_semanas" placeholder="0" onchange="verificarEdadRetiro()" oninput="verificarEdadRetiro()"></div>
+                <div class="campo"><label>Salario Promedio Diario: $</label><input type="number" id="v_salario" value="" step="0.01" placeholder="0.00"></div>
+            </div>
+
+            <!-- TABLA ASIGNACIONES FAMILIARES -->
+            <div class="explicacion-legal" style="padding:0;overflow:hidden;border-radius:10px;border:1px solid #d1d9e6;">
+                <div style="background:var(--oxford);color:#fff;padding:1rem 1.2rem;">
+                    <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;margin-bottom:0.3rem;">Asignaciones Familiares</div>
+                    <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.5;">Son montos adicionales que se suman a la pensión base — <em>Art. 164 Ley 73 SS · Arts. 138 al 141 Ley Vigente SS</em></div>
+                </div>
+                <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:0.78rem;background:#fff;margin:0">
+                    <thead>
+                        <tr style="background:#f0f4f8">
+                            <th style="padding:8px 10px;text-align:left;color:var(--oxford);font-weight:700;border-bottom:2px solid #dde3ed;white-space:nowrap">Concepto</th>
+                            <th style="padding:8px 10px;text-align:left;color:var(--oxford);font-weight:700;border-bottom:2px solid #dde3ed">Descripción</th>
+                            <th style="padding:8px 10px;text-align:center;color:var(--oxford);font-weight:700;border-bottom:2px solid #dde3ed;white-space:nowrap">% sobre pensión</th>
+                            <th style="padding:8px 10px;text-align:center;color:var(--oxford);font-weight:700;border-bottom:2px solid #dde3ed;white-space:nowrap">Compatible con</th>
+                            <th style="padding:8px 10px;text-align:center;color:var(--oxford);font-weight:700;border-bottom:2px solid #dde3ed;white-space:nowrap">Incompatible con</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom:1px solid #eef0f4">
+                            <td style="padding:8px 10px;font-weight:600;color:var(--oxford);white-space:nowrap">Cónyuge o<br>concubina(o)</td>
+                            <td style="padding:8px 10px;color:#555;line-height:1.4">Se otorga si el pensionado tiene cónyuge o concubina/o que dependa económicamente y no trabaje o perciba ingresos.</td>
+                            <td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--oxford)">15%</td>
+                            <td style="padding:8px 10px;text-align:center;color:#555">Hijos</td>
+                            <td style="padding:8px 10px;text-align:center;color:#c0392b;font-weight:600">Ayuda asistencial</td>
+                        </tr>
+                        <tr style="background:#fafafa;border-bottom:1px solid #eef0f4">
+                            <td style="padding:8px 10px;font-weight:600;color:var(--oxford);white-space:nowrap">Asignación<br>por Hijo(s)</td>
+                            <td style="padding:8px 10px;color:#555;line-height:1.4">Por cada hijo menor de 16 años, hasta 25 si estudia, o sin límite si tiene discapacidad permanente.</td>
+                            <td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--oxford)">10% c/u</td>
+                            <td style="padding:8px 10px;text-align:center;color:#555">Cónyuge · Otros hijos</td>
+                            <td style="padding:8px 10px;text-align:center;color:#c0392b;font-weight:600">Ayuda asistencial</td>
+                        </tr>
+                        <tr style="border-bottom:1px solid #eef0f4">
+                            <td style="padding:8px 10px;font-weight:600;color:var(--oxford);white-space:nowrap">Asignación<br>por Padres</td>
+                            <td style="padding:8px 10px;color:#555;line-height:1.4">Solo si <strong>no hay</strong> cónyuge ni hijos con derecho. Los padres deben depender económicamente del pensionado.</td>
+                            <td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--oxford)">10% c/u</td>
+                            <td style="padding:8px 10px;text-align:center;color:#555">Ambos padres</td>
+                            <td style="padding:8px 10px;text-align:center;color:#c0392b;font-weight:600">Cónyuge · Hijos · Ayuda asistencial</td>
+                        </tr>
+                        <tr style="background:#fff9db;border-bottom:none">
+                            <td style="padding:8px 10px;font-weight:600;color:var(--oxford);white-space:nowrap">Ayuda<br>Asistencial</td>
+                            <td style="padding:8px 10px;color:#555;line-height:1.4">Solo si <strong>no existen</strong> beneficiarios con derecho a asignaciones (cónyuge, hijos o padres).</td>
+                            <td style="padding:8px 10px;text-align:center;font-weight:700;color:#856404">15% sin beneficiarios<br><span style="font-size:0.72rem;font-weight:500">10% si hay 1 ascendiente</span></td>
+                            <td style="padding:8px 10px;text-align:center;color:#555">1 ascendiente<br><span style="font-size:0.72rem">(aunque reduce al 10%)</span></td>
+                            <td style="padding:8px 10px;text-align:center;color:#c0392b;font-weight:600">Cónyuge · Hijos · +1 ascendiente</td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+
+            <div class="seccion-captura" style="margin-top:1rem">
+                <h3>2. Asignaciones Familiares</h3>
+                <div class="campo"><label>Cónyuge o Concubina(o) dependiente (1=Sí / 0=No):</label><input type="number" id="v_esposa" value="0" min="0" max="1" oninput="validarReglasAsignacion()"></div>
+                <div class="campo"><label>Hijos calificados (menores 16 o hasta 25 estudiando):</label><input type="number" id="v_hijos" value="0" min="0" oninput="validarReglasAsignacion()"></div>
+                <div class="campo"><label>Hijos con discapacidad permanente (sin límite edad):</label><input type="number" id="v_hijos_discapacidad" value="0" min="0" oninput="validarReglasAsignacion()"></div>
+                <div class="campo"><label>Padres económicamente dependientes (máx. 2):</label><input type="number" id="v_padres" value="0" min="0" max="2" oninput="validarReglasAsignacion()"></div>
+                <div id="alerta_exclusion" class="alerta-exclusion">⚠️ Los padres quedan excluidos al existir cónyuge o hijos con derecho (Art. 138 LSS).</div>
+                <div id="nota_ayuda_asistencial" style="display:none;margin-top:8px;padding:8px 12px;background:#fff9db;border:1px solid #ffe066;border-radius:6px;font-size:0.8rem;color:#856404;font-weight:500;">
+                    ✨ <strong>Ayuda Asistencial aplicable:</strong> Al no haber beneficiarios, se aplica automáticamente el <strong>15%</strong> por Ayuda Asistencial (Art. 140 LSS).
+                </div>
+            </div>
+
+            <!-- CHECKBOX CONSENTIMIENTO ASESORÍA -->
+            <div style="margin:0 0 1rem;padding:1.2rem 1.5rem;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-left:4px solid #16a34a;border-radius:8px;">
+                <label style="display:flex;align-items:flex-start;gap:0.8rem;cursor:pointer;">
+                    <input type="checkbox" id="cb_asesoria" style="margin-top:3px;width:18px;height:18px;accent-color:#16a34a;flex-shrink:0;cursor:pointer;">
+                    <div>
+                        <div style="font-weight:700;color:#15803d;font-size:0.9rem;margin-bottom:0.3rem;">
+                            ✋ Deseo recibir asesoría personalizada sobre mi pensión
+                        </div>
+                        <div style="font-size:0.78rem;color:#166534;line-height:1.5;">
+                            Acepto que un asesor certificado me contacte para orientarme sobre mi estrategia de pensión, Modalidad 40 y opciones de optimización. Mis datos serán tratados de forma confidencial conforme a la <strong>Ley Federal de Protección de Datos Personales</strong>.
+                        </div>
+                    </div>
+                </label>
+                <!-- Campos adicionales que aparecen al marcar el checkbox -->
+                <div id="campos_asesoria" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid #86efac;">
+                    <div style="font-size:0.78rem;font-weight:700;color:#15803d;margin-bottom:0.7rem;text-transform:uppercase;letter-spacing:0.5px;">¿Cómo te contactamos?</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+                        <div>
+                            <label style="font-size:0.75rem;color:#166534;font-weight:600;display:block;margin-bottom:0.3rem;">WhatsApp o Teléfono</label>
+                            <input type="tel" id="v_telefono" placeholder="55 1234 5678" style="width:100%;padding:8px 10px;border:1px solid #86efac;border-radius:6px;font-family:inherit;font-size:0.85rem;background:#fff;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem;color:#166534;font-weight:600;display:block;margin-bottom:0.3rem;">Horario preferido</label>
+                            <select id="v_horario" style="width:100%;padding:8px 10px;border:1px solid #86efac;border-radius:6px;font-family:inherit;font-size:0.85rem;background:#fff;color:#333;">
+                                <option value="">Selecciona...</option>
+                                <option value="mañana">Mañana (9am - 12pm)</option>
+                                <option value="tarde">Tarde (12pm - 5pm)</option>
+                                <option value="noche">Noche (5pm - 8pm)</option>
+                                <option value="cualquiera">Cualquier hora</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-calcular" onclick="ejecutarCalculo()">⚡ Calcular mi Pensión en 1 Minuto</button>
+
+            <div id="pantalla_resultados" style="display:none">
+                <table class="res-tabla">
+                    <tr><th colspan="2">1. Factores del Cálculo (Año 2026)</th></tr>
+                    <tr><td>Valor UMA 2026</td><td class="num">$ 117.31</td></tr>
+                    <tr><td>Salario en Veces UMA</td><td class="num" id="out_vuma">0</td></tr>
+                    <tr><td>Años Excedentes (Regla IMSS)</td><td class="num" id="out_anios">0</td></tr>
+                    <tr><th colspan="2">2. Mecánica Matemática</th></tr>
+                    <tr><td>Cuantía Básica Anual</td><td class="num" id="out_cb">$ 0.00</td></tr>
+                    <tr><td>Incrementos Anuales</td><td class="num" id="out_inc">$ 0.00</td></tr>
+                    <tr class="subtotal"><td>Subtotal de Cuantía</td><td class="num" id="out_sub_cuantia">$ 0.00</td></tr>
+                    <tr><td>Asignación Familiar / Soledad (<span id="out_pct_asig">0</span>%)</td><td class="num" id="out_asig">$ 0.00</td></tr>
+                    <tr class="subtotal"><td>Subtotal con Asignaciones</td><td class="num" id="out_sub_asig">$ 0.00</td></tr>
+                    <tr><td>Decreto Presidencial (11% Fox)</td><td class="num" id="out_fox">$ 0.00</td></tr>
+                    <tr class="subtotal" style="background:#d1d5db"><td>Total Pensión Vejez (100%) Anual</td><td class="num" id="out_vej">$ 0.00</td></tr>
+                    <tr><th colspan="2">3. Diagnóstico Final</th></tr>
+                    <tr><td>Tipo de Pensión</td><td class="num" id="out_tipo_pension" style="color:var(--oxford);font-weight:700">—</td></tr>
+                    <tr><td>Factor por Edad (<span id="out_pct">75</span>% · <span id="out_edad_label">60 años</span>)</td><td class="num rojo" id="out_mate">$ 0.00</td></tr>
+                    <tr><td>Pensión Mínima Garantizada 2026</td><td class="num" style="font-weight:700">$ 10,636.54</td></tr>
+                    <tr class="subtotal"><td>RESULTADO FINAL PENSIÓN IMSS MENSUAL</td><td class="num" id="out_final">$ 0.00</td></tr>
+                    <tr><th colspan="2">4. Cálculo de Impuesto sobre la Renta</th></tr>
+                    <tr class="isr-block"><td>Total de pensión antes de impuestos</td><td class="num" id="out_isr_base">$ 0.00</td></tr>
+                    <tr class="isr-block"><td>Exención de ISR (15 UMA mensual)</td><td class="num" style="background:#fff8dc;font-weight:600">$ 53,493.36</td></tr>
+                    <tr class="isr-block"><td>Base Gravable (Excedente)</td><td class="num rojo" id="out_isr_gravable">$ 0.00</td></tr>
+                    <tr class="final"><td>Total de pensión a recibir mensual</td><td class="num" id="out_neto">$ 0.00</td></tr>
+                </table>
+
+                <!-- BOTÓN DESCARGAR PDF -->
+                <div style="text-align:center;margin-top:1.5rem;padding:1.5rem;background:linear-gradient(135deg,#eef2f8,#e6ecf4);border-radius:8px;border:1px solid #d1d9e6;">
+                    <div style="font-size:0.8rem;color:#666;margin-bottom:0.8rem;font-weight:500;">
+                        ¿Todo correcto? Descarga el reporte ejecutivo en PDF para archivar o presentar.
+                    </div>
+                    <button onclick="generarPDF()" style="background:linear-gradient(135deg,var(--oxford),var(--oxford-mid));color:var(--oro);border:none;padding:0.9rem 2.5rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:0.5px;box-shadow:0 6px 20px rgba(0,33,71,0.3);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        📄 Descargar Reporte Ejecutivo PDF
+                    </button>
+                    <div style="font-size:0.72rem;color:#aaa;margin-top:0.5rem;">Se genera en tu computadora · Sin enviar datos a ningún servidor</div>
+                </div>
+
+        </div>
+
+    </div><!-- /calc-wrapper -->
+
+
+    <!-- =============================================
+         PASO 3 — MODALIDAD 40
+    ============================================= -->
+    <div id="mod40-section" style="max-width:1100px;margin:2rem auto;padding:0 1rem;">
+
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+            <div style="background:var(--oro);color:var(--oxford);font-weight:800;font-size:0.8rem;padding:0.3rem 0.8rem;border-radius:20px;letter-spacing:1px;">PASO 3</div>
+            <h2 style="color:#fff;font-size:1.3rem;font-weight:700;margin:0;">Proyecto Modalidad 40 — Mejora tu Pensión</h2>
+        </div>
+
+        <!-- PENSIÓN ACTUAL ARRASTRADA -->
+        <div style="background:rgba(207,181,59,0.08);border:1.5px solid rgba(207,181,59,0.4);border-radius:12px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;">
+            <span style="font-size:1.5rem;">📊</span>
+            <div>
+                <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:2px;">Pensión actual sin Modalidad 40 (del Paso 2)</div>
+                <div style="font-size:1.5rem;font-weight:800;color:var(--oro);" id="m40_pension_actual">$ 0.00 <span style="font-size:0.8rem;font-weight:400;color:rgba(255,255,255,0.4)">/ mes · Calcula primero en el Paso 2</span></div>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+            <!-- PANEL IZQUIERDO — INPUTS -->
+            <div style="background:#0d1526;border-radius:12px;padding:1.5rem;border:1px solid rgba(207,181,59,0.2);">
+                <h3 style="color:var(--oro);font-size:1rem;margin:0 0 1.2rem 0;border-bottom:1px solid rgba(207,181,59,0.2);padding-bottom:0.8rem;">⚙️ Datos del Proyecto</h3>
+
+                <!-- ESTADO DEL TRABAJADOR — primero -->
+                <div style="margin-bottom:1rem;">
+                    <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);display:block;margin-bottom:6px;">Elija estado actual del trabajador</label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                        <button type="button" id="m40_btn_cotizando" onclick="m40_setEstado('cotizando')"
+                            style="background:var(--oro);color:var(--oxford);border:none;padding:0.5rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:800;cursor:pointer;">
+                            Cotizando actualmente
+                        </button>
+                        <button type="button" id="m40_btn_baja" onclick="m40_setEstado('baja')"
+                            style="background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);padding:0.5rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:700;cursor:pointer;">
+                            Dado de baja
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FECHA DE BAJA — solo visible si "Dado de baja" -->
+                <div id="m40_bloque_fecha_baja" style="margin-bottom:1rem;">
+                    <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);display:block;margin-bottom:4px;">Fecha de Baja en el IMSS</label>
+                    <input type="date" id="m40_fecha_baja" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;" onchange="m40_actualizar()">
+                                    <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px;" class="m40-hint-baja">Auto-rellenado con la fecha de hoy · Puedes modificarla</div>
+                </div>
+
+                <!-- FECHA INICIO MODALIDAD 40 — siempre visible -->
+                <div id="m40_bloque_inicio_mod40" style="margin-bottom:1rem;">
+                    <label style="font-size:0.75rem;color:var(--oro);display:block;margin-bottom:4px;font-weight:700;">Fecha de Inicio del Proyecto Modalidad 40</label>
+                    <input type="date" id="m40_fecha_inicio_mod40" style="width:100%;background:#0d1526;border:1px solid rgba(207,181,59,0.4);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;" onchange="m40_actualizar()">
+                    <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px;">Puede ser posterior a la fecha de baja · El costo aplica desde esta fecha</div>
+                </div>
+
+                <!-- TIPO DE PAGO -->
+                <div style="margin-bottom:1rem;">
+                    <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);display:block;margin-bottom:4px;">Forma de Pago</label>
+                    <select id="m40_tipo_pago" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;" onchange="m40_toggleRetroactivo()">
+                        <option value="recurrente">Pago Recurrente (Mes a Mes)</option>
+                        <option value="retroactivo">Pago Retroactivo (Una Exhibición)</option>
+                    </select>
+                </div>
+
+                <!-- FECHA TÉRMINO RETROACTIVO -->
+                <div id="m40_bloque_retro" style="margin-bottom:1rem;display:none;">
+                    <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);display:block;margin-bottom:4px;">Fecha de Término del Retroactivo</label>
+                    <input type="date" id="m40_fecha_termino_retro" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;" onchange="m40_actualizar()">
+                    <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px;">Máximo 5 años desde la fecha de baja · Hasta el mes en que realiza el trámite</div>
+                </div>
+
+                <!-- AÑOS + MESES A COTIZAR (RECURRENTE) -->
+                <div id="m40_bloque_recurrente" style="margin-bottom:1rem;">
+                    <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);display:block;margin-bottom:8px;">Plazos de Inversión — 3 Escenarios</label>
+
+                    <!-- ESCENARIO 1 -->
+                    <div style="background:rgba(207,181,59,0.06);border:1px solid rgba(207,181,59,0.25);border-radius:8px;padding:0.7rem;margin-bottom:0.6rem;">
+                        <div style="font-size:0.72rem;color:var(--oro);font-weight:700;margin-bottom:6px;">Escenario 1</div>
+                        <div style="display:flex;gap:0.5rem;">
+                            <div style="flex:1">
+                                <input type="number" id="m40_e1_anios" min="0" max="10" value="1" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.4rem 0.6rem;color:#fff;font-size:0.85rem;font-family:'DM Sans',sans-serif;">
+                                <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);text-align:center;margin-top:2px;">Años</div>
+                            </div>
+                            <div style="flex:1">
+                                <input type="number" id="m40_e1_meses" min="0" max="11" value="0" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.4rem 0.6rem;color:#fff;font-size:0.85rem;font-family:'DM Sans',sans-serif;">
+                                <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);text-align:center;margin-top:2px;">Meses</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ESCENARIO 2 -->
+                    <div style="background:rgba(207,181,59,0.06);border:1px solid rgba(207,181,59,0.25);border-radius:8px;padding:0.7rem;margin-bottom:0.6rem;">
+                        <div style="font-size:0.72rem;color:var(--oro);font-weight:700;margin-bottom:6px;">Escenario 2</div>
+                        <div style="display:flex;gap:0.5rem;">
+                            <div style="flex:1">
+                                <input type="number" id="m40_e2_anios" min="0" max="10" value="2" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.4rem 0.6rem;color:#fff;font-size:0.85rem;font-family:'DM Sans',sans-serif;">
+                                <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);text-align:center;margin-top:2px;">Años</div>
+                            </div>
+                            <div style="flex:1">
+                                <input type="number" id="m40_e2_meses" min="0" max="11" value="0" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.4rem 0.6rem;color:#fff;font-size:0.85rem;font-family:'DM Sans',sans-serif;">
+                                <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);text-align:center;margin-top:2px;">Meses</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ESCENARIO 3 -->
+                    <div style="background:rgba(207,181,59,0.06);border:1px solid rgba(207,181,59,0.25);border-radius:8px;padding:0.7rem;">
+                        <div style="font-size:0.72rem;color:var(--oro);font-weight:700;margin-bottom:6px;">Escenario 3</div>
+                        <div style="display:flex;gap:0.5rem;">
+                            <div style="flex:1">
+                                <input type="number" id="m40_e3_anios" min="0" max="10" value="3" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.4rem 0.6rem;color:#fff;font-size:0.85rem;font-family:'DM Sans',sans-serif;">
+                                <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);text-align:center;margin-top:2px;">Años</div>
+                            </div>
+                            <div style="flex:1">
+                                <input type="number" id="m40_e3_meses" min="0" max="11" value="0" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.4rem 0.6rem;color:#fff;font-size:0.85rem;font-family:'DM Sans',sans-serif;">
+                                <div style="font-size:0.62rem;color:rgba(255,255,255,0.35);text-align:center;margin-top:2px;">Meses</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SALARIO EN UMAS -->
+                <div style="margin-bottom:1rem;">
+                    <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);display:block;margin-bottom:4px;">Salario a Registrar en UMA's</label>
+                    <input type="number" id="m40_umas" min="1" max="25" value="25" step="0.5" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;" onchange="m40_actualizar()">
+                    <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px;">Tope máximo IMSS: 25 UMA's diarias · UMA 2026: $117.31</div>
+                </div>
+
+                <!-- SALARIO EQUIVALENTE -->
+                <div style="background:rgba(207,181,59,0.06);border-radius:8px;padding:0.7rem 1rem;margin-bottom:1rem;font-size:0.8rem;">
+                    <div style="color:rgba(255,255,255,0.5);margin-bottom:2px;">Equivalencia en pesos del salario registrado</div>
+                    <div style="color:var(--oro);font-weight:700;font-size:1.1rem;" id="m40_salario_equiv">$ 0.00 / día</div>
+                </div>
+
+                <!-- SEMANAS ACTUALES -->
+                <div style="margin-bottom:1rem;">
+                    <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);display:block;margin-bottom:4px;">Semanas Cotizadas Actuales</label>
+                    <input type="number" id="m40_semanas_actuales" min="0" value="0" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;" onchange="m40_actualizar()">
+                    <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px;">Del reporte IMSS · Mínimo requerido: 500 semanas</div>
+                </div>
+
+                <button onclick="m40_calcular()" style="width:100%;background:linear-gradient(135deg,var(--oro),#b8960c);color:var(--oxford);border:none;padding:0.9rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:0.5px;margin-top:0.5rem;">
+                    ⚡ Calcular Proyecto Modalidad 40
+                </button>
+            </div>
+
+            <!-- PANEL DERECHO — RESULTADOS 3 ESCENARIOS -->
+            <div style="background:#0d1526;border-radius:12px;padding:1.5rem;border:1px solid rgba(207,181,59,0.2);">
+                <h3 style="color:var(--oro);font-size:1rem;margin:0 0 1rem 0;border-bottom:1px solid rgba(207,181,59,0.2);padding-bottom:0.8rem;">Resultados del Proyecto</h3>
+
+                <!-- PENSIÓN SIN MOD 40 -->
+                <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:0.6rem 1rem;margin-bottom:1rem;">
+                    <span style="font-size:0.75rem;color:rgba(255,255,255,0.6);font-weight:600;">SIN Modalidad 40</span>
+                    <span style="font-size:1.1rem;font-weight:800;color:#ef4444;" id="m40_r_sin">$ 0.00</span>
+                </div>
+
+                <div id="m40_resultados_placeholder" style="text-align:center;padding:2rem 1rem;color:rgba(255,255,255,0.3);font-size:0.85rem;">
+                    Completa los datos y haz clic en "Calcular" para ver los 3 escenarios
+                </div>
+
+                <div id="m40_resultados" style="display:none;">
+
+                    <!-- TABS ESCENARIOS -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;margin-bottom:1rem;">
+                        <button onclick="m40_showTab(1)" id="m40_tab1" style="background:var(--oro);color:var(--oxford);border:none;padding:0.5rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:800;cursor:pointer;">Escenario 1</button>
+                        <button onclick="m40_showTab(2)" id="m40_tab2" style="background:rgba(207,181,59,0.15);color:var(--oro);border:1px solid rgba(207,181,59,0.3);padding:0.5rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;">Escenario 2</button>
+                        <button onclick="m40_showTab(3)" id="m40_tab3" style="background:rgba(207,181,59,0.15);color:var(--oro);border:1px solid rgba(207,181,59,0.3);padding:0.5rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;">Escenario 3</button>
+                    </div>
+
+                    <!-- ESCENARIO 1 PANEL -->
+                    <div id="m40_panel_e1">
+                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-bottom:2px;" id="m40_e1_label">Plazo: —</div>
+                        <div style="font-size:0.68rem;color:rgba(207,181,59,0.7);margin-bottom:0.5rem;font-weight:600;" id="m40_e1_fechas"></div>
+                        <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:0.75rem;color:rgba(255,255,255,0.6);font-weight:600;">CON Modalidad 40</span>
+                            <span style="font-size:1.2rem;font-weight:800;color:#22c55e;" id="m40_e1_con">$ 0.00</span>
+                        </div>
+                        <table style="width:100%;border-collapse:collapse;font-size:0.76rem;background:#0d1526;">
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Mejora mensual</td><td style="text-align:right;font-weight:700;color:var(--oro);" id="m40_e1_mejora">$ 0.00</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Semanas ganadas</td><td style="text-align:right;color:#fff;font-weight:700;" id="m40_e1_semanas">0</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Total semanas</td><td style="text-align:right;color:#fff;font-weight:700;" id="m40_e1_semanas_total">0</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Costo Modalidad 40</td><td style="text-align:right;color:#ef4444;font-weight:700;" id="m40_e1_costo">$ 0.00</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Recuperas vía AFORE (20%)</td><td style="text-align:right;color:#22c55e;font-weight:700;" id="m40_e1_afore">$ 0.00</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Inversión neta</td><td style="text-align:right;color:#fff;font-weight:700;" id="m40_e1_neta">$ 0.00</td></tr>
+                            <tr style="border-bottom:2px solid rgba(207,181,59,0.4);background:#0d1526;"><td style="padding:0.4rem 0;color:var(--oro);font-weight:700;">Recuperación inversión</td><td style="text-align:right;color:var(--oro);font-weight:800;font-size:1rem;" id="m40_e1_roi">0 meses</td></tr>
+                            <tr style="background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Ganancia Total (80 años · Esperanza de Vida)</td><td style="text-align:right;color:#22c55e;font-weight:700;" id="m40_e1_ganancia">$ 0.00</td></tr>
+                        </table>
+                        <div id="m40_e1_termometro" style="margin-top:0.8rem;border-radius:8px;padding:0.6rem;text-align:center;font-weight:800;font-size:0.82rem;"></div>
+                    </div>
+
+                    <!-- ESCENARIO 2 PANEL -->
+                    <div id="m40_panel_e2" style="display:none;">
+                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-bottom:2px;" id="m40_e2_label">Plazo: —</div>
+                        <div style="font-size:0.68rem;color:rgba(207,181,59,0.7);margin-bottom:0.5rem;font-weight:600;" id="m40_e2_fechas"></div>
+                        <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:0.75rem;color:rgba(255,255,255,0.6);font-weight:600;">CON Modalidad 40</span>
+                            <span style="font-size:1.2rem;font-weight:800;color:#22c55e;" id="m40_e2_con">$ 0.00</span>
+                        </div>
+                        <table style="width:100%;border-collapse:collapse;font-size:0.76rem;background:#0d1526;">
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Mejora mensual</td><td style="text-align:right;font-weight:700;color:var(--oro);" id="m40_e2_mejora">$ 0.00</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Semanas ganadas</td><td style="text-align:right;color:#fff;font-weight:700;" id="m40_e2_semanas">0</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Total semanas</td><td style="text-align:right;color:#fff;font-weight:700;" id="m40_e2_semanas_total">0</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Costo Modalidad 40</td><td style="text-align:right;color:#ef4444;font-weight:700;" id="m40_e2_costo">$ 0.00</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Recuperas vía AFORE (20%)</td><td style="text-align:right;color:#22c55e;font-weight:700;" id="m40_e2_afore">$ 0.00</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Inversión neta</td><td style="text-align:right;color:#fff;font-weight:700;" id="m40_e2_neta">$ 0.00</td></tr>
+                            <tr style="border-bottom:2px solid rgba(207,181,59,0.4);background:#0d1526;"><td style="padding:0.4rem 0;color:var(--oro);font-weight:700;">Recuperación inversión</td><td style="text-align:right;color:var(--oro);font-weight:800;font-size:1rem;" id="m40_e2_roi">0 meses</td></tr>
+                            <tr style="background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Ganancia Total (80 años · Esperanza de Vida)</td><td style="text-align:right;color:#22c55e;font-weight:700;" id="m40_e2_ganancia">$ 0.00</td></tr>
+                        </table>
+                        <div id="m40_e2_termometro" style="margin-top:0.8rem;border-radius:8px;padding:0.6rem;text-align:center;font-weight:800;font-size:0.82rem;"></div>
+                    </div>
+
+                    <!-- ESCENARIO 3 PANEL -->
+                    <div id="m40_panel_e3" style="display:none;">
+                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-bottom:2px;" id="m40_e3_label">Plazo: —</div>
+                        <div style="font-size:0.68rem;color:rgba(207,181,59,0.7);margin-bottom:0.5rem;font-weight:600;" id="m40_e3_fechas"></div>
+                        <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:0.75rem;color:rgba(255,255,255,0.6);font-weight:600;">CON Modalidad 40</span>
+                            <span style="font-size:1.2rem;font-weight:800;color:#22c55e;" id="m40_e3_con">$ 0.00</span>
+                        </div>
+                        <table style="width:100%;border-collapse:collapse;font-size:0.76rem;background:#0d1526;">
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Mejora mensual</td><td style="text-align:right;font-weight:700;color:var(--oro);" id="m40_e3_mejora">$ 0.00</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Semanas ganadas</td><td style="text-align:right;color:#fff;font-weight:700;" id="m40_e3_semanas">0</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Total semanas</td><td style="text-align:right;color:#fff;font-weight:700;" id="m40_e3_semanas_total">0</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Costo Modalidad 40</td><td style="text-align:right;color:#ef4444;font-weight:700;" id="m40_e3_costo">$ 0.00</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Recuperas vía AFORE (20%)</td><td style="text-align:right;color:#22c55e;font-weight:700;" id="m40_e3_afore">$ 0.00</td></tr>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Inversión neta</td><td style="text-align:right;color:#fff;font-weight:700;" id="m40_e3_neta">$ 0.00</td></tr>
+                            <tr style="border-bottom:2px solid rgba(207,181,59,0.4);background:#0d1526;"><td style="padding:0.4rem 0;color:var(--oro);font-weight:700;">Recuperación inversión</td><td style="text-align:right;color:var(--oro);font-weight:800;font-size:1rem;" id="m40_e3_roi">0 meses</td></tr>
+                            <tr style="background:#0d1526;"><td style="padding:0.4rem 0;color:#fff;font-weight:700;">Ganancia Total (80 años · Esperanza de Vida)</td><td style="text-align:right;color:#22c55e;font-weight:700;" id="m40_e3_ganancia">$ 0.00</td></tr>
+                        </table>
+                        <div id="m40_e3_termometro" style="margin-top:0.8rem;border-radius:8px;padding:0.6rem;text-align:center;font-weight:800;font-size:0.82rem;"></div>
+                    </div>
+
+                    <!-- BOTÓN PDF -->
+                    <div style="text-align:center;margin-top:1rem;">
+                        <button id="m40_btn_pdf" onclick="m40_generarPDF()" style="background:linear-gradient(135deg,#002147,#003170);color:var(--oro);border:1.5px solid var(--oro);padding:0.8rem 2rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:700;cursor:pointer;width:100%;letter-spacing:0.3px;">
+                            Descargar PDF — Proyeccion Modalidad 40
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <strong>© 2026 Pensionando a México — Todos los derechos reservados</strong><br>
+            Prohibida su reproducción total o parcial sin autorización expresa.<br><br>
+            <strong>Calculadora Pensión Ley 73</strong> · Basada en la Ley del Seguro Social 1973 y tablas oficiales IMSS 2026.<br>
+            Los resultados son estimaciones informativas. Consulte siempre con un especialista antes de tomar decisiones.<br>
+            UMA 2026: $117.31 &nbsp;·&nbsp; PMG: $10,636.54 &nbsp;·&nbsp; Exención ISR: 15 UMA mensual
+        </p>
+        <div style="border-top:1px solid rgba(207,181,59,0.2);margin-top:1.2rem;padding-top:1.2rem;font-size:0.72rem;color:rgba(255,255,255,0.35);line-height:1.8;max-width:700px;margin-left:auto;margin-right:auto;">
+            <strong style="color:rgba(207,181,59,0.6);">Declaración de Privacidad</strong><br>
+            La información ingresada en esta calculadora es procesada de forma local en tu navegador y/o en servidores seguros, 
+            únicamente con el propósito de calcular estimaciones de pensión bajo la Ley del Seguro Social de 1973. 
+            No compartimos, vendemos ni cedemos tus datos personales a terceros. 
+            Los datos capturados (nombre, NSS, salarios) se utilizan exclusivamente para generar el reporte de tu sesión. 
+            Al usar esta herramienta aceptas estas condiciones. Para dudas escríbenos a través de nuestros canales oficiales.<br><br>
+            <strong style="color:rgba(207,181,59,0.6);">Pensionando a México</strong> · © 2026 · Todos los derechos reservados.
+        </div>
+    </footer>
+
+</div><!-- /app-principal -->
+
+<!-- =============================================
+     MODAL — ADVERTENCIA REPORTE CONSOLIDADO
+============================================= -->
+<div id="modal-advertencia">
+    <div class="modal-card">
+        <div class="modal-icono">⚠️</div>
+        <div class="modal-titulo">Reporte Consolidado Detectado</div>
+        <p class="modal-cuerpo">
+            El documento que pegaste parece ser un <strong>reporte consolidado</strong>: solo muestra una fecha de alta, una de baja y un salario final por patrón, <strong>sin modificaciones de salario intermedias</strong>.
+        </p>
+        <div class="modal-diferencias">
+            <div style="margin-bottom:0.5rem;font-weight:700;color:#111;font-size:0.83rem;">¿Cómo identificar el reporte correcto?</div>
+            <div><span class="tag-ok">✓ DETALLADO</span> Contiene líneas con <strong>"MODIFICACION DE SALARIO"</strong> con fechas y salarios por cada cambio.</div>
+            <div style="margin-top:0.4rem"><span class="tag-no">✗ CONSOLIDADO</span> Solo muestra fecha de alta, fecha de baja y un salario final por empresa.</div>
+        </div>
+        <p class="modal-cuerpo" style="margin-bottom:0.5rem">
+            Con un reporte consolidado el <strong>SBC calculado será incorrecto</strong>, ya que no refleja los cambios salariales reales del período.
+        </p>
+        <div class="modal-nota-imss">
+            <strong>¿Cómo obtener el reporte detallado?</strong><br>
+            Ingresa a <strong>serviciosdigitales.imss.gob.mx</strong> → Semanas Cotizadas → selecciona la opción que muestra el <em>historial de movimientos</em> con todas las modificaciones de salario.
+        </div>
+        <div class="modal-pregunta" style="margin-top:1.2rem">
+            ¿Deseas continuar de todas formas con este reporte?
+        </div>
+        <div class="modal-botones">
+            <button class="modal-btn-cancelar" onclick="cerrarModal()">← Cancelar y cargar otro</button>
+            <button class="modal-btn-continuar" onclick="continuarConsolidado()">Sí, continuar con riesgo ⚠️</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ================================================================
+// ⚙️  CONFIGURACIÓN — CAMBIA ESTOS 3 VALORES CON LOS TUYOS
+// ================================================================
+const SUPABASE_URL    = 'https://jpkhgglfafcdvbfvlhyt.supabase.co';
+const SUPABASE_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impwa2hnZ2xmYWZjZHZiZnZsaHl0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjQwMDIsImV4cCI6MjA4NzgwMDAwMn0.lcFx0j_863kbNwyfPr6WwY9bjdBvzVsZ6SidgR7ux_g';
+const TABLA_ACCESOS   = 'accesos';
+// ================================================================
+
+// ================================================================
+// 🔑 CÓDIGOS MAESTROS — Acceso del administrador, sin Supabase
+//    Nunca expiran. Agregar más objetos si necesitas más accesos.
+//    ⚠️  Cambia 'MASTER-2026' por el código que prefieras.
+// ================================================================
+const CODIGOS_MAESTROS = [
+    { codigo: 'MASTER-2026', nombre: 'Administrador', activo: true }
+    // Ejemplos adicionales:
+    // { codigo: 'DEMO-TEST', nombre: 'Demo', activo: true },
+];
+// ================================================================
+
+// ---- VALIDACIÓN DE ACCESO ----
+
+async function validarAcceso() {
+    const codigo = document.getElementById('input-codigo').value.trim().toUpperCase();
+    const errDiv = document.getElementById('login-error');
+    const okDiv  = document.getElementById('login-success');
+    const diasDiv= document.getElementById('login-dias');
+    const btnTxt = document.getElementById('btn-texto');
+    const spinner= document.getElementById('btn-spinner');
+    const btn    = document.getElementById('btn-acceder');
+
+    errDiv.style.display = 'none';
+    okDiv.style.display  = 'none';
+    diasDiv.style.display= 'none';
+
+    if (!codigo) {
+        errDiv.textContent = 'Por favor ingresa tu código de acceso.';
+        errDiv.style.display = 'block';
+        return;
+    }
+
+    // ── 1. Verificar códigos maestros locales (sin Supabase) ──
+    const maestro = CODIGOS_MAESTROS.find(m => m.codigo === codigo);
+    if (maestro) {
+        if (!maestro.activo) {
+            errDiv.textContent = 'Este código ha sido desactivado.';
+            errDiv.style.display = 'block';
+            return;
+        }
+        okDiv.textContent  = `✅ Acceso verificado. Bienvenido, ${maestro.nombre}.`;
+        okDiv.style.display = 'block';
+        diasDiv.innerHTML  = 'Acceso <strong>sin expiración</strong> — modo administrador 👑';
+        diasDiv.style.display = 'block';
+        sessionStorage.setItem('ley73_codigo', codigo);
+        sessionStorage.setItem('ley73_expira', '2099-12-31T00:00:00Z');
+        setTimeout(() => mostrarApp(`${codigo} 👑`, '∞'), 900);
+        return;
+    }
+
+    // ── 2. Si no es maestro, consultar Supabase ──
+    // Mostrar spinner
+    btn.disabled = true;
+    btnTxt.style.display = 'none';
+    spinner.style.display = 'block';
+
+    try {
+        // Supabase no configurado aún
+        if (SUPABASE_URL.includes('TUPROYECTO') || SUPABASE_ANON.includes('TU_ANON')) {
+            throw new Error('Código no reconocido. Si eres administrador, configura Supabase o usa el código maestro.');
+        }
+
+        const res = await fetch(
+            `${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?codigo=eq.${encodeURIComponent(codigo)}&select=*`,
+            {
+                headers: {
+                    'apikey': SUPABASE_ANON,
+                    'Authorization': `Bearer ${SUPABASE_ANON}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+            throw new Error('Código no encontrado. Verifica que lo escribiste correctamente.');
+        }
+
+        const registro = data[0];
+        const hoy      = new Date();
+        const expira   = new Date(registro.fecha_expiracion);
+
+        if (hoy > expira) {
+            throw new Error(`Tu acceso expiró el ${expira.toLocaleDateString('es-MX', {day:'2-digit',month:'long',year:'numeric'})}. Renuévalo para continuar.`);
+        }
+
+        if (registro.activo === false) {
+            throw new Error('Este código ha sido desactivado. Contáctanos para más información.');
+        }
+
+        // Calcular días restantes
+        const msRestantes  = expira - hoy;
+        const diasRestantes= Math.ceil(msRestantes / (1000 * 60 * 60 * 24));
+
+        // Mostrar éxito
+        okDiv.textContent = '✅ Acceso verificado. Bienvenido.';
+        okDiv.style.display = 'block';
+        diasDiv.innerHTML = `Acceso válido por <strong>${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} más</strong>`;
+        diasDiv.style.display = 'block';
+
+        // Generar token único de sesión y registrarlo en Supabase
+        const sesionToken = crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36)+Math.random().toString(36));
+        sessionStorage.setItem('ley73_codigo', codigo);
+        sessionStorage.setItem('ley73_expira', registro.fecha_expiracion);
+        sessionStorage.setItem('ley73_token', sesionToken);
+
+        // Registrar token en Supabase — si otro entra con el mismo código, sobrescribe este token
+        try {
+            await fetch(`${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?codigo=eq.${encodeURIComponent(codigo)}`, {
+                method: 'PATCH',
+                headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sesion_token: sesionToken })
+            });
+        } catch(e) { /* no bloquear login si falla */ }
+
+        // Mostrar app después de un momento
+        setTimeout(() => {
+            mostrarApp(codigo, diasRestantes);
+        }, 1200);
+
+    } catch (err) {
+        errDiv.textContent = err.message || 'Error de conexión. Intenta de nuevo.';
+        errDiv.style.display = 'block';
+        btn.disabled = false;
+        btnTxt.style.display = 'block';
+        spinner.style.display = 'none';
+    }
+}
+
+function mostrarApp(codigo, dias) {
+    document.getElementById('pantalla-acceso').style.display = 'none';
+    document.getElementById('app-principal').style.display   = 'block';
+    setTimeout(mostrarBotonAdmin, 300);
+    const diasTexto = dias === '∞' ? '∞' : `${dias}d`;
+    document.getElementById('nav-codigo-activo').textContent = `${codigo} · ${diasTexto}`;
+    window.scrollTo(0, 0);
+    // Disparar aviso edad si ya tiene valor < 60
+    setTimeout(verificarEdadRetiro, 200);
+    // Iniciar vigilancia de sesión única (solo para códigos Supabase, no maestros)
+    const esMaestro = (CODIGOS_MAESTROS || []).some(m => m.codigo === codigo);
+    if (!esMaestro) iniciarVigilanciaSesion(codigo);
+}
+
+// ── VIGILANCIA DE SESIÓN ÚNICA ──
+// Cada 45s verifica que nadie más haya entrado con el mismo código
+let _vigilanciaInterval = null;
+async function iniciarVigilanciaSesion(codigo) {
+    if (_vigilanciaInterval) clearInterval(_vigilanciaInterval);
+    _vigilanciaInterval = setInterval(async () => {
+        try {
+            const miToken = sessionStorage.getItem('ley73_token');
+            if (!miToken) return; // maestro o sin token, no vigilar
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?codigo=eq.${encodeURIComponent(codigo)}&select=sesion_token`,
+                { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` } }
+            );
+            const data = await res.json();
+            if (!data || !data[0]) return;
+            const tokenRemoto = data[0].sesion_token;
+            if (tokenRemoto && tokenRemoto !== miToken) {
+                // Otro dispositivo entró con el mismo código — expulsar
+                clearInterval(_vigilanciaInterval);
+                sessionStorage.clear();
+                document.body.innerHTML =
+                    '<div style="display:flex;align-items:center;justify-content:center;height:100vh;' +
+                    'background:#0d1526;flex-direction:column;gap:1rem;font-family:DM Sans,sans-serif;padding:2rem;text-align:center;">' +
+                        '<div style="font-size:2.5rem;">🔐</div>' +
+                        '<div style="color:#cfb53b;font-size:1.3rem;font-weight:800;">Sesión cerrada</div>' +
+                        '<div style="color:rgba(255,255,255,0.6);font-size:0.9rem;max-width:360px;line-height:1.5;">' +
+                            'Este código fue utilizado en otro dispositivo.<br>' +
+                            'Solo se permite una sesión activa por código.' +
+                        '</div>' +
+                        '<button onclick="location.reload()" style="margin-top:0.5rem;background:linear-gradient(135deg,#cfb53b,#b8960c);color:#002147;border:none;padding:0.7rem 2rem;border-radius:8px;font-size:0.95rem;font-weight:800;cursor:pointer;">' +
+                            'Volver a ingresar' +
+                        '</button>' +
+                    '</div>';
+            }
+        } catch(e) { /* silencioso — no interrumpir por error de red */ }
+    }, 45000); // cada 45 segundos
+}
+
+function cerrarSesion() {
+    const codigo = sessionStorage.getItem('ley73_codigo');
+    // Limpiar token en Supabase al cerrar voluntariamente
+    if (codigo && SUPABASE_URL && !SUPABASE_URL.includes('TUPROYECTO')) {
+        fetch(`${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?codigo=eq.${encodeURIComponent(codigo)}`, {
+            method: 'PATCH',
+            headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sesion_token: null })
+        }).catch(() => {});
+    }
+    if (_vigilanciaInterval) clearInterval(_vigilanciaInterval);
+    sessionStorage.clear();
+    location.reload();
+}
+
+// Permitir Enter en el input
+document.getElementById('input-codigo').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') validarAcceso();
+});
+
+// Verificar si ya hay sesión activa en sessionStorage
+(function() {
+    const codigo = sessionStorage.getItem('ley73_codigo');
+    const expira = sessionStorage.getItem('ley73_expira');
+    if (codigo && expira) {
+        const diasRestantes = Math.ceil((new Date(expira) - new Date()) / (1000*60*60*24));
+        if (diasRestantes > 0 || expira === '2099-12-31T00:00:00Z') {
+            const diasTexto = expira === '2099-12-31T00:00:00Z' ? '∞' : diasRestantes;
+            mostrarApp(codigo, diasTexto);
+        } else {
+            sessionStorage.removeItem('ley73_codigo');
+            sessionStorage.removeItem('ley73_expira');
+        }
+    }
+})();
+
+
+// ================================================================
+// PASO 1 — SBC
+// ================================================================
+
+// ── Helpers de formato de fecha ──
+function ymdToDmy(ymd) {
+    // AAAA-MM-DD → DD/MM/AAAA
+    if (!ymd || ymd.length < 10) return '';
+    const parts = ymd.split('-');
+    if (parts.length !== 3) return ymd;
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function dmyToYmd(dmy) {
+    // DD/MM/AAAA → AAAA-MM-DD
+    if (!dmy || dmy.length < 10) return '';
+    const parts = dmy.split('/');
+    if (parts.length !== 3) return '';
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
+
+function formatDateInput(input) {
+    // Auto-insertar / al escribir: 01/05/2019
+    let val = input.value.replace(/[^0-9]/g, '');
+    if (val.length >= 3 && val.length <= 4) val = val.slice(0,2) + '/' + val.slice(2);
+    else if (val.length >= 5) val = val.slice(0,2) + '/' + val.slice(2,4) + '/' + val.slice(4,8);
+    input.value = val;
+}
+
+function formatYMD(dateStr) {
+    const parts = dateStr.split('/');
+    if(parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    return "";
+}
+
+// ================================================================
+// DETECCIÓN DE TIPO DE REPORTE
+// ================================================================
+
+function esReporteDetallado(texto) {
+    // Un reporte detallado SIEMPRE contiene al menos una "MODIFICACION DE SALARIO"
+    return /MODIFICACION\s+DE\s+SALARIO/i.test(texto);
+}
+
+function extraerATabla() {
+    const text = document.getElementById("imssText").value;
+    if (!text.trim()) { alert("El cuadro de texto está vacío. Pega el reporte primero."); return; }
+
+    // ── Detectar si es consolidado ──
+    if (!esReporteDetallado(text)) {
+        // Guardar el texto para usarlo si el usuario decide continuar
+        window._textoReportePendiente = text;
+        // Mostrar modal de advertencia
+        document.getElementById('modal-advertencia').classList.add('visible');
+        return; // Detener aquí — el usuario decide
+    }
+
+    // Si es detallado, procesar normalmente
+    procesarTextoIMSS(text);
+}
+
+function cerrarModal() {
+    document.getElementById('modal-advertencia').classList.remove('visible');
+    window._textoReportePendiente = null;
+    // Limpiar el textarea para que cargue uno nuevo
+    document.getElementById("imssText").value = "";
+    document.getElementById("imssText").focus();
+}
+
+function continuarConsolidado() {
+    document.getElementById('modal-advertencia').classList.remove('visible');
+    const texto = window._textoReportePendiente;
+    window._textoReportePendiente = null;
+    if (texto) procesarTextoIMSS(texto);
+}
+
+function procesarTextoIMSS(text) {
+    try {
+        const cleanText = text.replace(/["\\]/g, ' ').replace(/\s+/g, ' ');
+
+        const regex = /(BAJA|REINGRESO|MODIFICACION DE SALARIO|ALTA)[^\d]*(\d{2}\/\d{2}\/\d{4})[^\d\$]*\$?\s*([\d,]+\.?\d*)/gi;
+        let movimientos = [], match;
+        while ((match = regex.exec(cleanText)) !== null)
+            movimientos.push({ tipo: match[1].toUpperCase(), fechaYmd: formatYMD(match[2]), salario: parseFloat(match[3].replace(/,/g, '')) });
+        if (movimientos.length === 0) { alert("No encontré fechas ni salarios válidos. Verifica el texto pegado."); return; }
+        movimientos.sort((a,b) => new Date(b.fechaYmd) - new Date(a.fechaYmd));
+        const tbody = document.getElementById("sbcBody");
+        tbody.innerHTML = "";
+        let fechaTerminoActual = "";
+        const hoy = new Date().toISOString().split('T')[0];
+
+        for (let i = 0; i < movimientos.length; i++) {
+            let mov = movimientos[i];
+            // BAJA actualiza la fecha de término — no crea fila
+            if (mov.tipo === "BAJA") {
+                if (!fechaTerminoActual) fechaTerminoActual = mov.fechaYmd;
+                continue;
+            }
+            // Primer movimiento activo sin BAJA previa = trabajador activo hoy
+            if (!fechaTerminoActual) fechaTerminoActual = hoy;
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td><input type="date" class="fecha-inicio" value="${mov.fechaYmd}"></td><td><input type="date" class="fecha-termino" value="${fechaTerminoActual}"></td><td><input type="number" class="salario" step="0.01" min="0" value="${mov.salario}"></td><td class="dias-computados">-</td><td class="monto-acumulado">-</td><td><button class="btn-remove" onclick="eliminarFila(this)">✕</button></td>`;
+            tbody.appendChild(tr);
+            // La siguiente fecha fin es el día antes del inicio actual
+            const dAnterior = new Date(mov.fechaYmd + 'T00:00:00');
+            dAnterior.setDate(dAnterior.getDate() - 1);
+            fechaTerminoActual = dAnterior.toISOString().split('T')[0];
+        }
+
+        // Indicador visual del tipo de reporte procesado
+        const esDetallado = esReporteDetallado(text);
+        const badge = document.getElementById('badge-tipo-reporte');
+        if (badge) {
+            badge.style.display = 'flex';
+            badge.style.background = esDetallado ? 'rgba(21,128,61,0.1)' : 'rgba(185,28,28,0.1)';
+            badge.style.borderColor = esDetallado ? 'rgba(21,128,61,0.3)' : 'rgba(185,28,28,0.3)';
+            badge.style.color = esDetallado ? '#15803d' : '#b91c1c';
+            badge.innerHTML = esDetallado
+                ? '✅ Reporte <strong>DETALLADO</strong> — cálculo preciso'
+                : '⚠️ Reporte <strong>CONSOLIDADO</strong> — resultados aproximados';
+        }
+
+        // Notificación discreta en lugar de alert molesto
+        const notif = document.createElement('div');
+        notif.style.cssText = 'position:fixed;top:80px;right:20px;padding:12px 20px;border-radius:8px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.15);transition:opacity 0.5s;';
+        notif.style.background = esDetallado ? '#15803d' : '#b45309';
+        notif.style.color = '#fff';
+        notif.innerHTML = esDetallado
+            ? '✅ Reporte DETALLADO — períodos extraídos. Revisa la tabla.'
+            : '⚠️ Reporte CONSOLIDADO — revisa períodos antes de calcular.';
+        document.body.appendChild(notif);
+        setTimeout(() => { notif.style.opacity = '0'; setTimeout(() => notif.remove(), 500); }, 3500);
+
+    } catch (error) { alert("Error procesando el texto: " + error.message); }
+}
+
+function agregarFila() {
+    const tbody = document.getElementById("sbcBody");
+    const filaVacia = document.getElementById("fila-vacia");
+    if(filaVacia) filaVacia.remove();
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td><input type="date" class="fecha-inicio"></td><td><input type="date" class="fecha-termino"></td><td><input type="number" class="salario" step="0.01" min="0" placeholder="0.00"></td><td class="dias-computados">-</td><td class="monto-acumulado">-</td><td><button class="btn-remove" onclick="eliminarFila(this)">✕</button></td>`;
+    tbody.appendChild(tr);
+}
+
+function eliminarFila(btn) { btn.closest("tr").remove(); }
+
+function calcularSBC() {
+    const rows = document.querySelectorAll("#sbcBody tr:not(#fila-vacia)");
+    let totalDias = 0, totalMonto = 0;
+    const LIMITE_DIAS = 1750;
+    rows.forEach(row => {
+        const fechaInicio  = row.querySelector(".fecha-inicio").value;
+        const fechaTermino = row.querySelector(".fecha-termino").value;
+        const salario      = parseFloat(row.querySelector(".salario").value) || 0;
+        const tdDias       = row.querySelector(".dias-computados");
+        const tdMonto      = row.querySelector(".monto-acumulado");
+        tdDias.textContent = "-"; tdMonto.textContent = "-";
+        if (fechaInicio && fechaTermino && salario > 0 && totalDias < LIMITE_DIAS) {
+            const d1 = new Date(fechaInicio + 'T00:00:00');
+            const d2 = new Date(fechaTermino + 'T00:00:00');
+            if (d2 >= d1) {
+                let dp = Math.round((d2 - d1) / (1000*60*60*24)) + 1;
+                if (totalDias + dp > LIMITE_DIAS) dp = LIMITE_DIAS - totalDias;
+                const mp = dp * salario;
+                tdDias.textContent  = dp;
+                tdMonto.textContent = "$" + mp.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+                totalDias += dp; totalMonto += mp;
+            }
+        }
+    });
+    const sbcPromedio = totalDias > 0 ? (totalMonto / totalDias) : 0;
+    document.getElementById("results").style.display = "block";
+    document.getElementById("resDias").textContent = totalDias;
+    document.getElementById("resSuma").textContent = totalMonto.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById("resSBC").textContent  = "$" + sbcPromedio.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    window._sbcCalculado = sbcPromedio;
+    if (sbcPromedio > 0) {
+        const input = document.getElementById("v_salario");
+        input.value = sbcPromedio.toFixed(2);
+        input.classList.add("auto-filled");
+        const fmt = "$" + sbcPromedio.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+        document.getElementById("sbc-badge-val").textContent = fmt + " / día";
+        document.getElementById("sbc-badge").style.display = "block";
+        document.getElementById("transfer-confirm").style.display = "block";
+        document.getElementById("transfer-confirm-val").textContent = fmt;
+    }
+}
+
+function transferirSBC() {
+    if (!window._sbcCalculado || window._sbcCalculado <= 0) { calcularSBC(); return; }
+    const sbc = window._sbcCalculado;
+    const input = document.getElementById("v_salario");
+    const fmt = "$" + sbc.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    input.value = sbc.toFixed(2); input.classList.add("auto-filled");
+    document.getElementById("sbc-badge-val").textContent = fmt + " / día";
+    document.getElementById("sbc-badge").style.display = "block";
+    document.getElementById("transfer-confirm").style.display = "block";
+    document.getElementById("transfer-confirm-val").textContent = fmt;
+    document.getElementById("seccion-pension").scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(() => { input.classList.remove("auto-filled"); }, 4000);
+}
+
+// ================================================================
+// PASO 2 — CALCULADORA PENSIÓN
+// ================================================================
+
+// Semanas proyectadas guardadas para usar en el cálculo
+let _semanasProyectadas = null;
+let _usandoProyeccion   = false;
+
+function verificarEdadRetiro() {
+    const edad    = parseInt(document.getElementById('v_edad').value) || 0;
+    const semanas = parseInt(document.getElementById('v_semanas').value) || 0;
+    const aviso   = document.getElementById('aviso-edad');
+    const texto   = document.getElementById('aviso-edad-texto');
+    const btnProy = document.getElementById('btn-proyectar');
+
+    // Resetear proyección si cambia algo
+    _semanasProyectadas = null;
+    _usandoProyeccion   = false;
+
+    if (edad >= 60 || edad === 0) {
+        aviso.style.display = 'none';
+        return;
+    }
+
+    // Calcular semanas faltantes hasta los 60
+    const aniosFaltantes   = 60 - edad;
+    const semanasFaltantes = Math.round(aniosFaltantes * 52);
+    const semanasProyect   = semanas + semanasFaltantes;
+
+    _semanasProyectadas = semanasProyect;
+
+    // Construir mensaje
+    texto.innerHTML = `
+        <strong>Edad actual:</strong> ${edad} años &nbsp;·&nbsp; 
+        <strong>Años para jubilarse:</strong> ${aniosFaltantes} año${aniosFaltantes !== 1 ? 's' : ''}<br>
+        <strong>Semanas actuales:</strong> ${semanas.toLocaleString('es-MX')}<br>
+        <strong>Semanas adicionales que acumulará:</strong> ~${semanasFaltantes.toLocaleString('es-MX')}<br>
+        <strong style="color:#92400e;font-size:0.95rem;">
+            Semanas proyectadas al llegar a los 60: ${semanasProyect.toLocaleString('es-MX')}
+        </strong>
+        <br><span style="font-size:0.78rem;color:#a16207;margin-top:0.2rem;display:block;">
+            * Proyección con el ritmo actual de cotización (${semanas > 0 ? (semanas/edad).toFixed(1) : '—'} sem/año promedio)
+        </span>`;
+
+    btnProy.textContent = `✅ Sí, usar ${semanasProyect.toLocaleString('es-MX')} semanas proyectadas`;
+    aviso.style.display = 'block';
+}
+
+function usarSemanasProyectadas() {
+    if (!_semanasProyectadas) return;
+    document.getElementById('v_semanas').value = _semanasProyectadas;
+    document.getElementById('v_edad').value    = 60;
+    _usandoProyeccion = true;
+    document.getElementById('aviso-edad').style.display = 'none';
+    // Notificación
+    const n = document.createElement('div');
+    n.style.cssText = 'position:fixed;top:80px;right:20px;background:#15803d;color:#fff;padding:12px 20px;border-radius:8px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);';
+    n.innerHTML = `✅ Semanas actualizadas a ${_semanasProyectadas.toLocaleString('es-MX')} · Edad ajustada a 60 años`;
+    document.body.appendChild(n);
+    setTimeout(() => { n.style.opacity='0'; n.style.transition='opacity 0.5s'; setTimeout(()=>n.remove(),500); }, 3000);
+}
+
+function usarSemanasActuales() {
+    _usandoProyeccion = false;
+    _semanasProyectadas = null;
+    document.getElementById('aviso-edad').style.display = 'none';
+}
+
+function validarReglasAsignacion() {
+    const e = parseInt(document.getElementById('v_esposa').value)||0;
+    const h = parseInt(document.getElementById('v_hijos').value)||0;
+    const d = parseInt(document.getElementById('v_hijos_discapacidad').value)||0;
+    const ip= document.getElementById('v_padres');
+    const al= document.getElementById('alerta_exclusion');
+    const na= document.getElementById('nota_ayuda_asistencial');
+    // Regla exclusión: con cónyuge o hijos, padres no aplican
+    if (e>0||h>0||d>0) { ip.value=0; ip.disabled=true; al.style.display='block'; }
+    else { ip.disabled=false; al.style.display='none'; }
+    // Ayuda asistencial: sin ningún beneficiario (incluyendo padres)
+    const p = parseInt(ip.value)||0;
+    na.style.display = (e===0&&h===0&&d===0&&p===0) ? 'block' : 'none';
+}
+
+function ejecutarCalculo() {
+    try {
+        const UMA=117.31, PM=10636.54, EISR=53493.36;
+        let edad=parseInt(document.getElementById('v_edad').value);
+        let sem =parseInt(document.getElementById('v_semanas').value);
+        let sal =parseFloat(document.getElementById('v_salario').value);
+        let ne=parseInt(document.getElementById('v_esposa').value)||0;
+        let nh=parseInt(document.getElementById('v_hijos').value)||0;
+        let nd=parseInt(document.getElementById('v_hijos_discapacidad').value)||0;
+        let np=parseInt(document.getElementById('v_padres').value)||0;
+        if(isNaN(edad)||isNaN(sem)||isNaN(sal)||sal<=0){alert("Llena todos los campos laborales correctamente.");return;}
+        if(edad<60)edad=60; if(edad>65)edad=65; if(sem<500)sem=500;
+        let vu=sal/UMA, se=sem-500, an=Math.floor(se/52), so=se%52;
+        if(so>=13&&so<=26)an+=0.5; else if(so>26)an+=1.0;
+        let pc=0.13,pi=0.0245;
+        if(vu<=6){
+            if(vu<=1){pc=0.8;pi=0.00563;}
+            else if(vu<=1.25){pc=0.7711;pi=0.00814;}
+            else if(vu<=1.5){pc=0.5818;pi=0.01178;}
+            else if(vu<=1.75){pc=0.4923;pi=0.0143;}
+            else if(vu<=2){pc=0.4267;pi=0.01615;}
+            else if(vu<=2.5){pc=0.3368;pi=0.01868;}
+            else if(vu<=3){pc=0.2783;pi=0.02033;}
+            else if(vu<=4){pc=0.2065;pi=0.02235;}
+            else if(vu<=5){pc=0.1641;pi=0.02355;}
+            else{pc=0.1362;pi=0.02433;}
+        }
+        let cb=sal*pc*365, inc=sal*pi*365*an, sc=cb+inc;
+
+        // ── ASIGNACIONES ART. 138 LSS (lógica completa y correcta) ──
+        let pa=0;
+        const hayBeneficiarios = (ne>0||nh>0||nd>0||np>0);
+        if (!hayBeneficiarios) {
+            // Sin ningún beneficiario → Ayuda Asistencial 15%
+            pa = 15;
+        } else {
+            // Cónyuge: 15% (incompatible con ayuda asistencial)
+            if(ne>0) pa += 15;
+            // Hijos calificados: 10% c/u (incompatible con ayuda asistencial)
+            if(nh>0) pa += nh*10;
+            // Hijos discapacidad: 10% c/u (sin límite de edad)
+            if(nd>0) pa += nd*10;
+            // Padres: solo si NO hay cónyuge ni hijos (ya bloqueados por validarReglasAsignacion)
+            if(ne===0&&nh===0&&nd===0&&np>0) pa += np*10;
+        }
+
+        let asig=sc*(pa/100), sa=sc+asig, fox=sa*0.11, vej=sa+fox;
+        let pe=75+((edad-60)*5), mat=(vej*(pe/100))/12;
+        let fin=mat>PM?mat:PM;
+        let bg=fin>EISR?fin-EISR:0;
+        const f=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(n);
+        // Tipo de pensión según edad
+        const tipoPension = edad >= 65 ? 'Pensión por Vejez (Art. 162 LSS)' : 'Pensión por Cesantía en Edad Avanzada (Art. 154 LSS)';
+
+        document.getElementById('out_vuma').innerText=vu.toFixed(4);
+        document.getElementById('out_anios').innerText=an;
+        document.getElementById('out_cb').innerText=f(cb);
+        document.getElementById('out_inc').innerText=f(inc);
+        document.getElementById('out_sub_cuantia').innerText=f(sc);
+        document.getElementById('out_pct_asig').innerText=pa;
+        document.getElementById('out_asig').innerText=f(asig);
+        document.getElementById('out_sub_asig').innerText=f(sa);
+        document.getElementById('out_fox').innerText=f(fox);
+        document.getElementById('out_vej').innerText=f(vej);
+        document.getElementById('out_pct').innerText=pe;
+        document.getElementById('out_edad_label').innerText=edad+' años';
+        document.getElementById('out_tipo_pension').innerText=tipoPension;
+        document.getElementById('out_mate').innerText=f(mat);
+        document.getElementById('out_final').innerText=f(fin);
+        document.getElementById('out_isr_base').innerText=f(fin);
+        document.getElementById('out_isr_gravable').innerText=f(bg);
+        document.getElementById('out_neto').innerText=f(fin);
+
+        // ── Sincronizar pensión actual con Módulo Modalidad 40 ──
+        const m40el = document.getElementById('m40_pension_actual');
+        if (m40el) {
+            m40el.innerHTML = f(fin) + ' <span style="font-size:0.8rem;font-weight:400;color:rgba(255,255,255,0.4)">/ mes</span>';
+        }
+
+        document.getElementById('pantalla_resultados').style.display='block';
+        document.getElementById('pantalla_resultados').scrollIntoView({behavior:'smooth',block:'start'});
+
+        // ── ESTADÍSTICA ANÓNIMA (siempre, sin datos personales) ──
+        enviarEstadistica({
+            edad:          edad,
+            semanas:       sem,
+            rango_pension: calcularRango(fin),
+            tipo_pension:  edad >= 65 ? 'vejez' : 'cesantia',
+            veces_uma:     parseFloat(vu.toFixed(4)),
+            tiene_conyugue: ne > 0,
+            num_hijos:     nh + nd,
+            tiene_padres:  np > 0
+        });
+
+
+        // ── LEAD CON CONSENTIMIENTO (solo si marcó el checkbox) ──
+        const cbAsesoria = document.getElementById('cb_asesoria');
+        if (cbAsesoria && cbAsesoria.checked) {
+            const telefono = document.getElementById('v_telefono').value.trim();
+            const horario  = document.getElementById('v_horario').value;
+            enviarLead({
+                nombre:           (document.getElementById('v_nombre').value || '').toUpperCase(),
+                nss:              document.getElementById('v_nss').value || '',
+                telefono:         telefono + (horario ? ` · Horario: ${horario}` : ''),
+                edad:             edad,
+                semanas:          sem,
+                salario_diario:   parseFloat(sal.toFixed(2)),
+                pension_estimada: parseFloat(fin.toFixed(2)),
+                tipo_pension:     edad >= 65 ? 'Vejez' : 'Cesantía E.A.'
+            });
+            // Confirmación visual al usuario
+            setTimeout(() => {
+                const conf = document.createElement('div');
+                conf.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#15803d;color:#fff;padding:12px 20px;border-radius:8px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);';
+                conf.innerHTML = '✅ Solicitud de asesoría enviada. Te contactaremos pronto.';
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 4000);
+            }, 800);
+        }
+
+    } catch(e){alert("Error: "+e.message);}
+}
+
+// ================================================================
+// GENERADOR PDF EJECUTIVO
+// ================================================================
+function generarPDF() {
+    const { jsPDF } = window.jspdf;
+
+    // Verificar que hay resultados
+    const finVal = document.getElementById('out_neto').innerText;
+    if (!finVal || finVal === '$ 0.00') {
+        alert('Primero ejecuta el cálculo de pensión antes de generar el PDF.');
+        return;
+    }
+
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+    const W = 215.9; // Ancho carta
+    const M = 18;    // Margen
+    const CW = W - M*2; // Ancho contenido
+
+    // ── Helpers ──
+    const hex2rgb = hex => { const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return [r,g,b]; };
+    const OXFORD  = [0,33,71];
+    const ORO     = [207,181,59];
+    const GRIS    = [245,247,250];
+    const GRIS2   = [220,225,235];
+    const TEXTO   = [55,55,55];
+    const ROJO    = [192,57,43];
+    const VERDE   = [21,128,61];
+
+    // ── Datos de la pantalla ──
+    const nombre   = (document.getElementById('v_nombre').value || 'NO ESPECIFICADO').toUpperCase();
+    const nss      = document.getElementById('v_nss').value     || 'NO ESPECIFICADO';
+    // Regla: edad mínima en PDF es 60 — si el trabajador tiene menos, el reporte refleja 60
+    const edadRaw  = parseInt(document.getElementById('v_edad').value) || 60;
+    const edad     = edadRaw < 60 ? 60 : edadRaw;
+    const semanas  = document.getElementById('v_semanas').value || '—';
+    const salario  = document.getElementById('v_salario').value || '—';
+    const tipoPension = document.getElementById('out_tipo_pension').innerText;
+    const vuma     = document.getElementById('out_vuma').innerText;
+    const anios    = document.getElementById('out_anios').innerText;
+    const cb       = document.getElementById('out_cb').innerText;
+    const inc      = document.getElementById('out_inc').innerText;
+    const subC     = document.getElementById('out_sub_cuantia').innerText;
+    const pctAsig  = document.getElementById('out_pct_asig').innerText;
+    const asig     = document.getElementById('out_asig').innerText;
+    const subA     = document.getElementById('out_sub_asig').innerText;
+    const fox      = document.getElementById('out_fox').innerText;
+    const vej      = document.getElementById('out_vej').innerText;
+    const pctEdad  = document.getElementById('out_pct').innerText;
+    const mate     = document.getElementById('out_mate').innerText;
+    const final_   = document.getElementById('out_final').innerText;
+    const gravable = document.getElementById('out_isr_gravable').innerText;
+    const neto     = document.getElementById('out_neto').innerText;
+    const hoy      = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+    const hora     = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+
+    let y = 0;
+
+    // ════════════════════════════════════════
+    // ENCABEZADO — Compacto
+    // ════════════════════════════════════════
+    doc.setFillColor(...OXFORD);
+    doc.rect(0, 0, W, 26, 'F');
+
+    // Línea dorada inferior del header
+    doc.setFillColor(...ORO);
+    doc.rect(0, 26, W, 1.2, 'F');
+
+    // Logo / Icono área izquierda
+    doc.setFillColor(...ORO);
+    doc.roundedRect(M, 4, 14, 14, 2, 2, 'F');
+    doc.setTextColor(0,33,71);
+    doc.setFontSize(10);
+    doc.setFont('helvetica','bold');
+    doc.text('73', M+7, 13, {align:'center'});
+    doc.setFontSize(4.5);
+    doc.text('LEY', M+7, 17, {align:'center'});
+
+    // Título principal
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(11);
+    doc.setFont('helvetica','bold');
+    doc.text('REPORTE EJECUTIVO DE PENSION IMSS', M+20, 10);
+
+    doc.setFontSize(6.5);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(...ORO);
+    doc.text('Motor de Calculo Profesional · Ley del Seguro Social 1973', M+20, 16);
+
+    doc.setTextColor(180,200,220);
+    doc.setFontSize(6);
+    doc.text('Generado el ' + hoy + ' a las ' + hora + ' hrs', M+20, 21);
+
+    // Tipo de pensión badge — compacto
+    const esVejez = tipoPension.includes('Vejez');
+    doc.setFillColor(...(esVejez ? [21,128,61] : [30,90,180]));
+    doc.roundedRect(M+100, 4, esVejez ? 42 : 65, 7, 2, 2, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(6);
+    doc.setFont('helvetica','bold');
+    doc.text(esVejez ? 'PENSION POR VEJEZ' : 'CESANTIA EN EDAD AVANZADA', M+103, 8.5);
+
+    y = 34;
+
+    // ════════════════════════════════════════
+    // SECCIÓN 1 — DATOS DEL TRABAJADOR
+    // ════════════════════════════════════════
+    // Header sección
+    doc.setFillColor(...OXFORD);
+    doc.rect(M, y, CW, 7, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(8);
+    doc.setFont('helvetica','bold');
+    doc.text('1.  IDENTIFICACION DEL TRABAJADOR', M+3, y+5);
+    y += 8;
+
+    // Fila nombre
+    doc.setFillColor(...GRIS);
+    doc.rect(M, y, CW, 9, 'F');
+    doc.setTextColor(100,100,100);
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    doc.text('NOMBRE COMPLETO', M+3, y+3.5);
+    doc.setTextColor(...OXFORD);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.text(nombre, M+3, y+6.5);
+    y += 8;
+
+    // Fila NSS + Fecha
+    doc.setFillColor(255,255,255);
+    doc.rect(M, y, CW/2-1, 9, 'F');
+    doc.setFillColor(...GRIS);
+    doc.rect(M+CW/2+1, y, CW/2-1, 9, 'F');
+
+    doc.setTextColor(100,100,100);
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    doc.text('NÚMERO DE SEGURIDAD SOCIAL', M+3, y+3.5);
+    doc.text('FECHA DE CÁLCULO', M+CW/2+4, y+3.5);
+
+    doc.setTextColor(...OXFORD);
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.text(nss, M+3, y+6.5);
+    doc.text(hoy, M+CW/2+4, y+6.5);
+    y += 10;
+
+    // ════════════════════════════════════════
+    // SECCIÓN 2 — DATOS LABORALES
+    // ════════════════════════════════════════
+    doc.setFillColor(...OXFORD);
+    doc.rect(M, y, CW, 7, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(8);
+    doc.setFont('helvetica','bold');
+    doc.text('2.  DATOS LABORALES', M+3, y+5);
+    y += 8;
+
+    const datosLab = [
+        ['Edad de Retiro', `${edad} años`, 'Semanas Cotizadas', semanas],
+        ['SBC Promedio Diario', `$${parseFloat(salario).toLocaleString('es-MX',{minimumFractionDigits:2})}`, 'Veces UMA (UMA 2026: $117.31)', vuma],
+        ['Años Excedentes sobre 500 sem.', anios, 'Tipo de Pensión', esVejez ? 'Por Vejez' : 'Cesantía E.A.'],
+    ];
+
+    datosLab.forEach((row, i) => {
+        const bg = i%2===0 ? GRIS : [255,255,255];
+        doc.setFillColor(...bg);
+        doc.rect(M, y, CW, 8, 'F');
+        doc.setTextColor(100,100,100); doc.setFontSize(6.5); doc.setFont('helvetica','normal');
+        doc.text(row[0], M+3, y+3);
+        doc.text(row[2], M+CW/2+3, y+3);
+        doc.setTextColor(...OXFORD); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+        doc.text(row[1], M+3, y+5.5);
+        doc.text(row[3], M+CW/2+3, y+5.5);
+        y += 7;
+    });
+    y += 2;
+
+    // ════════════════════════════════════════
+    // SECCIÓN 3 — DESGLOSE MATEMÁTICO
+    // ════════════════════════════════════════
+    doc.setFillColor(...OXFORD);
+    doc.rect(M, y, CW, 7, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(8);
+    doc.setFont('helvetica','bold');
+    doc.text('3.  DESGLOSE DEL CÁLCULO · LEY 73', M+3, y+5);
+    y += 10;
+
+    const filas = [
+        { concepto:'Cuantía Básica Anual',                valor:cb,    tipo:'normal' },
+        { concepto:'Incrementos por Años Excedentes',     valor:inc,   tipo:'normal' },
+        { concepto:'Subtotal de Cuantía',                 valor:subC,  tipo:'subtotal' },
+        { concepto:`Asignación Familiar / Ayuda Asistencial (${pctAsig}%)`, valor:asig, tipo:'normal' },
+        { concepto:'Subtotal con Asignaciones',           valor:subA,  tipo:'subtotal' },
+        { concepto:'Decreto Presidencial +11% (Fox 2002)',valor:fox,   tipo:'normal' },
+        { concepto:'Total Pensión Vejez (100%) Anual',    valor:vej,   tipo:'subtotal' },
+        { concepto:`Factor por Edad (${pctEdad}% · ${edad} años)`, valor:mate, tipo:'normal' },
+        { concepto:'Pensión Mínima Garantizada 2026',     valor:'$ 10,636.54', tipo:'pmg' },
+        { concepto:'PENSIÓN MENSUAL BRUTA (Mayor de ambas)', valor:final_, tipo:'final' },
+    ];
+
+    filas.forEach((f, i) => {
+        let bgColor, textColor, fontSize=8, fontStyle='normal';
+        if (f.tipo==='subtotal')    { bgColor=GRIS2;        textColor=OXFORD;  fontStyle='bold'; }
+        else if (f.tipo==='final')  { bgColor=OXFORD;       textColor=[255,255,255]; fontStyle='bold'; fontSize=9; }
+        else if (f.tipo==='pmg')    { bgColor=[255,249,219];textColor=[133,100,4]; }
+        else                        { bgColor=i%2===0?GRIS:[255,255,255]; textColor=TEXTO; }
+
+        const h = f.tipo==='final' ? 6 : 4;
+        doc.setFillColor(...bgColor);
+        doc.rect(M, y, CW, h, 'F');
+        doc.setTextColor(...textColor);
+        doc.setFontSize(fontSize);
+        doc.setFont('helvetica', fontStyle);
+        doc.text(f.concepto, M+3, y+h*0.72);
+        doc.text(f.valor, M+CW-3, y+h*0.72, {align:'right'});
+        if (f.tipo==='final') {
+            // Línea dorada debajo del total final
+            doc.setFillColor(...ORO);
+            doc.rect(M, y+h, CW, 0.8, 'F');
+        }
+        y += h+1;
+    });
+    y += 2;
+
+    // ════════════════════════════════════════
+    // SECCIÓN 4 — ISR
+    // ════════════════════════════════════════
+    y += 2;
+    doc.setFillColor(...OXFORD);
+    doc.rect(M, y, CW, 7, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica','bold');
+    doc.text('4.  CALCULO DE IMPUESTO SOBRE LA RENTA (ISR)', M+3, y+5);
+    y += 10;
+
+    // Determinar si la pensión está exenta de ISR
+    const gravableNum = parseFloat(gravable.replace(/[^0-9.-]/g,''));
+    const estaExenta  = gravableNum <= 0;
+
+    if (estaExenta) {
+        // ── PENSIÓN EXENTA — recuadro verde espacioso ──
+        doc.setFillColor(236, 253, 245);
+        doc.roundedRect(M, y, CW, 23, 3, 3, 'F');
+        doc.setDrawColor(16, 185, 129);
+        doc.setLineWidth(0.8);
+        doc.roundedRect(M, y, CW, 23, 3, 3, 'S');
+
+        // Título
+        doc.setTextColor(6, 95, 70);
+        doc.setFontSize(9);
+        doc.setFont('helvetica','bold');
+        doc.text('PENSION EXENTA DE ISR', M+5, y+6);
+        doc.setDrawColor(16, 185, 129);
+        doc.setLineWidth(0.3);
+        doc.line(M+4, y+8, M+CW-4, y+8);
+        doc.setFontSize(7);
+        doc.setFont('helvetica','normal');
+        doc.setTextColor(6, 95, 70);
+        doc.text('Pension mensual: ' + final_, M+5, y+13);
+        doc.text('Limite exencion 15 UMA: $ 53,493.36', M+5, y+18);
+        doc.setFontSize(6);
+        doc.setFont('helvetica','italic');
+        doc.text('Art. 93 Fracc. IV LISR — Pensiones IMSS exentas hasta 15 UMA mensuales.', M+5, y+22);
+        y += 22;
+
+    } else {
+        // ── PENSIÓN GRAVABLE — desglose con buen espaciado ──
+        const filasISR = [
+            { concepto:'Pension Mensual Bruta',                        valor:final_,        bg:[255,255,255] },
+            { concepto:'Exencion ISR — 15 UMA mensual (Art.93-IV LISR)', valor:'$ 53,493.36', bg:[255,249,219] },
+            { concepto:'Base Gravable (excedente sobre exencion)',       valor:gravable,      bg:GRIS },
+        ];
+        filasISR.forEach(f => {
+            doc.setFillColor(...f.bg);
+            doc.rect(M, y, CW, 10, 'F');
+            doc.setDrawColor(220,220,220);
+            doc.setLineWidth(0.2);
+            doc.line(M, y+10, M+CW, y+10);
+            doc.setTextColor(...TEXTO);
+            doc.setFontSize(8);
+            doc.setFont('helvetica','normal');
+            doc.text(f.concepto, M+4, y+6.5);
+            doc.setFont('helvetica','bold');
+            doc.text(f.valor, M+CW-4, y+6.5, {align:'right'});
+            y += 11;
+        });
+        // Nota legal
+        y += 3;
+        doc.setFontSize(6.5);
+        doc.setFont('helvetica','italic');
+        doc.setTextColor(140,140,140);
+        doc.text('Base legal: Art. 93 Fracc. IV LISR. Las pensiones del IMSS estan exentas hasta 15 UMA mensuales.', M+3, y);
+        y += 8;
+    }
+
+    // MONTO FINAL NETO — Caja destacada
+    y += 1;
+    doc.setFillColor(...OXFORD);
+    doc.roundedRect(M, y, CW, 12, 3, 3, 'F');
+    doc.setFillColor(...ORO);
+    doc.roundedRect(M, y+14, CW, 1, 0, 0, 'F');
+
+    doc.setTextColor(180,200,220);
+    doc.setFontSize(6.5);
+    doc.setFont('helvetica','normal');
+    doc.text('PENSION MENSUAL ESTIMADA A RECIBIR · 2026', W/2, y+4, {align:'center'});
+
+    doc.setTextColor(...ORO);
+    doc.setFontSize(13);
+    doc.setFont('helvetica','bold');
+    doc.text(neto, W/2, y+10, {align:'center'});
+    y += 15;
+
+    // ════════════════════════════════════════
+    // SECCIÓN 5 — NOTA LEGAL + FUNDAMENTO
+    // ════════════════════════════════════════
+    doc.setFillColor(...GRIS);
+    doc.roundedRect(M, y, CW, 17, 2, 2, 'F');
+    doc.setDrawColor(...GRIS2);
+    doc.setLineWidth(0.4);
+    doc.roundedRect(M, y, CW, 17, 2, 2, 'S');
+
+    doc.setTextColor(110,110,110);
+    doc.setFontSize(6);
+    doc.setFont('helvetica','bold');
+    doc.text('NOTA IMPORTANTE', M+4, y+5);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(5.5);
+    doc.text('Estimaciones con base en tablas oficiales IMSS. Resultados deben cotejarse con el IMSS para validacion formal.', M+4, y+10, {maxWidth: CW-8});
+    doc.setTextColor(...OXFORD);
+    doc.setFont('helvetica','bold');
+    doc.text('Fundamento: ', M+4, y+15);
+    doc.setFont('helvetica','normal');
+    doc.setTextColor(100,100,100);
+    doc.text('LSS 1973 Arts. 154, 162, 138-141 · UMA 2026: $117.31 · PMG: $10,636.54', M+22, y+15, {maxWidth: CW-26});
+    y += 17;
+
+    // ════════════════════════════════════════
+    // PIE DE PÁGINA
+    // ════════════════════════════════════════
+    const pageH = doc.internal.pageSize.getHeight();
+    doc.setFillColor(...OXFORD);
+    doc.rect(0, pageH-12, W, 12, 'F');
+    doc.setFillColor(...ORO);
+    doc.rect(0, pageH-12, W, 0.8, 'F');
+    doc.setTextColor(180,200,220);
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    doc.text('Calculadora Pensión Ley 73 · Motor de Cálculo Profesional IMSS', M, pageH-5);
+    doc.text(`Página 1 de 1  ·  ${hoy}`, W-M, pageH-5, {align:'right'});
+
+    // ── Guardar ──
+    const nombreArchivo = nss !== 'NO ESPECIFICADO'
+        ? `Pension_Ley73_NSS${nss}_${new Date().toISOString().slice(0,10)}.pdf`
+        : `Pension_Ley73_${new Date().toISOString().slice(0,10)}.pdf`;
+
+    doc.save(nombreArchivo);
+}
+
+// ── Calcular rango de pensión para estadísticas ──
+function calcularRango(monto) {
+    if (monto <= 10636.54) return 'PMG';
+    if (monto <= 15000)    return '10k-15k';
+    if (monto <= 20000)    return '15k-20k';
+    if (monto <= 30000)    return '20k-30k';
+    return '+30k';
+}
+
+// ── Mostrar/ocultar campos de asesoría según checkbox ──
+// Script al final del body — DOM ya está disponible, no necesita DOMContentLoaded
+(function() {
+    const cb = document.getElementById('cb_asesoria');
+    if (cb) cb.addEventListener('change', function() {
+        const campos = document.getElementById('campos_asesoria');
+        if (campos) campos.style.display = this.checked ? 'block' : 'none';
+    });
+})();
+
+// ── Enviar estadística anónima a Supabase ──
+async function enviarEstadistica(datos) {
+    if (!SUPABASE_URL || SUPABASE_URL.includes('TUPROYECTO')) return;
+    try {
+        await fetch(`${SUPABASE_URL}/rest/v1/estadisticas`, {
+            method: 'POST',
+            headers: {
+                'apikey':        SUPABASE_ANON,
+                'Authorization': `Bearer ${SUPABASE_ANON}`,
+                'Content-Type':  'application/json',
+                'Prefer':        'return=minimal'
+            },
+            body: JSON.stringify(datos)
+        });
+    } catch(e) { console.log('Estadística no enviada:', e.message); }
+}
+
+// ── Enviar lead a Supabase (solo si marcó el checkbox) ──
+async function enviarLead(datos) {
+
+    if (!SUPABASE_URL || SUPABASE_URL.includes('TUPROYECTO')) return;
+    try {
+        await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+            method: 'POST',
+            headers: {
+                'apikey':        SUPABASE_ANON,
+                'Authorization': `Bearer ${SUPABASE_ANON}`,
+                'Content-Type':  'application/json',
+                'Prefer':        'return=minimal'
+            },
+            body: JSON.stringify(datos)
+        });
+    } catch(e) { console.log('Lead no enviado:', e.message); }
+}
+
+// ================================================================
+
+
+
+    // Formatear markdown básico
+    burbuja.innerHTML = texto
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g,     '<em>$1</em>')
+        .replace(/\n/g,            '<br>');
+
+
+
+</script>
+
+<script>
+// ================================================================
+// MÓDULO 3 — MODALIDAD 40
+// ================================================================
+
+const M40_TASAS = {
+    2019: 0.10075, 2020: 0.10075, 2021: 0.10075,
+    2022: 0.10075, 2023: 0.11166, 2024: 0.12256,
+    2025: 0.13347, 2026: 0.14438, 2027: 0.15528,
+    2028: 0.16619, 2029: 0.17709, 2030: 0.18800
+};
+const M40_UMA_DIARIA = 117.31;
+const M40_UMA_MENSUAL = M40_UMA_DIARIA * 30.4;
+const M40_PMG = 10636.54;
+
+function m40_getTasa(anio) {
+    if (anio <= 2021) return M40_TASAS[2019];
+    if (anio >= 2030) return M40_TASAS[2030];
+    return M40_TASAS[anio] || M40_TASAS[2026];
+}
+
+function m40_setEstado(estado) {
+    const btnCot      = document.getElementById('m40_btn_cotizando');
+    const btnBaja     = document.getElementById('m40_btn_baja');
+    const fechaBajaEl = document.getElementById('m40_fecha_baja');
+    const inicioEl    = document.getElementById('m40_fecha_inicio_mod40');
+    const hoy         = new Date().toISOString().slice(0,10);
+
+    if (estado === 'cotizando') {
+        // Estilo botón activo
+        btnCot.style.background  = 'var(--oro)';              btnCot.style.color  = 'var(--oxford)'; btnCot.style.border  = 'none';
+        btnBaja.style.background = 'rgba(207,181,59,0.12)';   btnBaja.style.color = 'var(--oro)';    btnBaja.style.border = '1px solid rgba(207,181,59,0.3)';
+        // Auto-llenar ambas fechas con hoy
+        if (fechaBajaEl) fechaBajaEl.value = hoy;
+        if (inicioEl)    inicioEl.value    = hoy;
+        // Hint de fecha baja
+        const hintBaja = fechaBajaEl?.parentElement?.querySelector('.m40-hint-baja');
+        if (hintBaja) hintBaja.textContent = 'Auto-rellenado con la fecha de hoy · Puedes modificarla';
+
+    } else {
+        // Estilo botón activo
+        btnBaja.style.background = 'var(--oro)';              btnBaja.style.color = 'var(--oxford)'; btnBaja.style.border = 'none';
+        btnCot.style.background  = 'rgba(207,181,59,0.12)';   btnCot.style.color  = 'var(--oro)';    btnCot.style.border  = '1px solid rgba(207,181,59,0.3)';
+        // Limpiar fecha baja para captura manual, inicio = hoy
+        if (fechaBajaEl) fechaBajaEl.value = '';
+        if (inicioEl && !inicioEl.value) inicioEl.value = hoy;
+        // Hint de fecha baja
+        const hintBaja = fechaBajaEl?.parentElement?.querySelector('.m40-hint-baja');
+        if (hintBaja) hintBaja.textContent = 'Ingresa la fecha real de baja del IMSS';
+    }
+    m40_actualizar();
+}
+
+function m40_toggleRetroactivo() {
+    const tipo = document.getElementById('m40_tipo_pago').value;
+    document.getElementById('m40_bloque_retro').style.display = tipo === 'retroactivo' ? 'block' : 'none';
+    document.getElementById('m40_bloque_recurrente').style.display = tipo === 'retroactivo' ? 'none' : 'block';
+
+    // Auto-llenar fecha término con hoy al cambiar a retroactivo
+    if (tipo === 'retroactivo') {
+        const fechaTermEl = document.getElementById('m40_fecha_termino_retro');
+        if (fechaTermEl && !fechaTermEl.value) {
+            fechaTermEl.value = new Date().toISOString().split('T')[0];
+        }
+    }
+    m40_actualizar();
+}
+
+function m40_actualizar() {
+    const umas = parseFloat(document.getElementById('m40_umas').value) || 25;
+    const salarioDiario = umas * M40_UMA_DIARIA;
+    document.getElementById('m40_salario_equiv').textContent = '$ ' + salarioDiario.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' / día';
+
+    // Auto-llenar fecha término retroactivo con fecha actual si está vacía
+    const tipoEl = document.getElementById('m40_tipo_pago');
+    const fechaTermEl = document.getElementById('m40_fecha_termino_retro');
+    if (tipoEl && tipoEl.value === 'retroactivo' && fechaTermEl && !fechaTermEl.value) {
+        fechaTermEl.value = new Date().toISOString().split('T')[0];
+    }
+}
+
+function m40_calcular() {
+    const netoEl = document.getElementById('out_neto');
+    const netoText = netoEl ? netoEl.innerText || netoEl.textContent : '0';
+    const pensionActual = parseFloat(netoText.replace(/[^0-9.]/g,'')) || 0;
+    const semanasActuales = parseInt(document.getElementById('m40_semanas_actuales').value) || 0;
+    const umas = parseFloat(document.getElementById('m40_umas').value) || 25;
+    const tipoPago = document.getElementById('m40_tipo_pago').value;
+
+    if (semanasActuales > 0 && semanasActuales < 500) { alert('Se requieren mínimo 500 semanas cotizadas para pensión Ley 73'); return; }
+
+    const salarioDiario = umas * M40_UMA_DIARIA;
+    const sbcActual = parseFloat(document.getElementById('resSBC')?.textContent?.replace(/[^0-9.]/g,'')) || 0;
+
+    // Mostrar pensión sin mod40
+    const fmt = v => '$ ' + Math.max(0,v).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('m40_r_sin').textContent = fmt(pensionActual);
+
+    if (tipoPago === 'retroactivo') {
+        // ── MODO RETROACTIVO (un solo resultado, lógica original) ──
+        const fechaBaja = document.getElementById('m40_fecha_baja').value;
+        const fechaTermino = document.getElementById('m40_fecha_termino_retro').value;
+        if (!fechaBaja) { alert('Ingresa la fecha de baja'); return; }
+        if (!fechaTermino) { alert('Ingresa la fecha de término del retroactivo'); return; }
+
+        const dBaja = new Date(fechaBaja + 'T00:00:00');
+        const dTermino = new Date(fechaTermino + 'T00:00:00');
+        const dInicio = new Date(dBaja); dInicio.setDate(dInicio.getDate()+1);
+        const maxFecha = new Date(dBaja); maxFecha.setFullYear(maxFecha.getFullYear()+5);
+        if (dTermino > maxFecha) { alert('El retroactivo no puede exceder 5 años desde la fecha de baja'); return; }
+
+        const diasCotizados = Math.round((dTermino - dInicio)/(1000*60*60*24));
+        const aniosM40 = diasCotizados/365;
+        let costoTotal = 0;
+        let dActual = new Date(dInicio);
+        while (dActual <= dTermino) {
+            const anio = dActual.getFullYear();
+            const tasa = m40_getTasa(anio);
+            const finAnio = new Date(anio,11,31);
+            const dFin = dTermino < finAnio ? dTermino : finAnio;
+            const diasAnio = Math.round((dFin - dActual)/(1000*60*60*24))+1;
+            costoTotal += salarioDiario * tasa * diasAnio;
+            dActual = new Date(anio+1,0,1);
+        }
+        const mesesRetro = diasCotizados/30.4;
+        const factorInflacion = Math.pow(1.045,aniosM40)-1;
+        const factorRecargos = 0.0147*mesesRetro;
+        const recargos = costoTotal*(factorInflacion+factorRecargos);
+        const costoConRecargos = costoTotal+recargos;
+        const afore = costoConRecargos*0.20;
+        const inversionNeta = costoConRecargos-afore;
+        const semanasM40 = diasCotizados/7;
+        const semanasTotal = semanasActuales+semanasM40;
+        const diasM40En = Math.min(diasCotizados,1750);
+        const diasSin = 1750-diasM40En;
+        const nuevoSBC = sbcActual>0 ? ((sbcActual*diasSin)+(salarioDiario*diasM40En))/1750 : salarioDiario;
+        const pensionMejorada = calcularPensionMod40(nuevoSBC,semanasTotal);
+        const mejora = pensionMejorada-pensionActual;
+        const roi = mejora>0 ? inversionNeta/mejora : 999;
+        const ganancia = m40_calcularGanancia(mejora);
+
+        // Mostrar en escenario 1 (retroactivo usa solo e1)
+        // Fecha inicio retroactivo = día siguiente a baja
+        const dBajaObj2 = new Date(fechaBaja+'T00:00:00');
+        dBajaObj2.setDate(dBajaObj2.getDate()+1);
+        const fechaInicioRetro = dBajaObj2.toISOString().slice(0,10);
+
+        m40_mostrarEscenario('e1', {
+            label: 'Retroactivo: ' + fechaBaja + ' → ' + fechaTermino,
+            con: pensionMejorada, mejora, semanasM40: Math.round(semanasM40),
+            semanasTotal: Math.round(semanasTotal), costo: costoTotal,
+            afore, neta: inversionNeta, roi, ganancia,
+            recargos, costoRetro: costoConRecargos, esRetro: true,
+            fechaInicio: fechaInicioRetro, fechaFin: fechaTermino
+        });
+
+        document.getElementById('m40_resultados_placeholder').style.display='none';
+        document.getElementById('m40_resultados').style.display='block';
+        m40_showTab(1);
+
+    } else {
+        // ── MODO RECURRENTE — 3 ESCENARIOS ──
+        const escenarios = [
+            { id:'e1', anios: parseInt(document.getElementById('m40_e1_anios').value)||0, meses: parseInt(document.getElementById('m40_e1_meses').value)||0 },
+            { id:'e2', anios: parseInt(document.getElementById('m40_e2_anios').value)||0, meses: parseInt(document.getElementById('m40_e2_meses').value)||0 },
+            { id:'e3', anios: parseInt(document.getElementById('m40_e3_anios').value)||0, meses: parseInt(document.getElementById('m40_e3_meses').value)||0 },
+        ];
+
+        escenarios.forEach(esc => {
+            const aniosM40 = esc.anios + (esc.meses/12);
+            const diasCotizados = Math.round(aniosM40*365);
+            if (diasCotizados === 0) return;
+
+            let costoTotal = 0;
+            // Usar fecha de inicio real del proyecto para proyectar tasas por año
+            const inicioBloqueEl2 = document.getElementById('m40_bloque_inicio_mod40');
+            const inicioMod40El2 = document.getElementById('m40_fecha_inicio_mod40');
+            let dInicioCalc;
+            if (inicioBloqueEl2 && inicioBloqueEl2.style.display !== 'none' && inicioMod40El2 && inicioMod40El2.value) {
+                dInicioCalc = new Date(inicioMod40El2.value + 'T00:00:00');
+            } else {
+                dInicioCalc = new Date();
+            }
+            let dActual = new Date(dInicioCalc);
+            let diasRestantes = diasCotizados;
+            while (diasRestantes > 0) {
+                const anio = dActual.getFullYear();
+                const tasa = m40_getTasa(anio);
+                const finAnio = new Date(anio,11,31);
+                const diasAnio = Math.min(diasRestantes, Math.round((finAnio-dActual)/(1000*60*60*24))+1);
+                costoTotal += salarioDiario*tasa*diasAnio;
+                diasRestantes -= diasAnio;
+                dActual = new Date(anio+1,0,1);
+            }
+
+            const afore = costoTotal*0.20;
+            const inversionNeta = costoTotal-afore;
+            const semanasM40 = diasCotizados/7;
+            const semanasTotal = semanasActuales+semanasM40;
+            const diasM40En = Math.min(diasCotizados,1750);
+            const diasSin = 1750-diasM40En;
+            const nuevoSBC = sbcActual>0 ? ((sbcActual*diasSin)+(salarioDiario*diasM40En))/1750 : salarioDiario;
+            const pensionMejorada = calcularPensionMod40(nuevoSBC,semanasTotal);
+            const mejora = pensionMejorada-pensionActual;
+            const roi = mejora>0 ? inversionNeta/mejora : 999;
+            const ganancia = m40_calcularGanancia(mejora);
+            const labelPlazo = esc.anios>0 || esc.meses>0 ? (esc.anios>0?esc.anios+' año'+(esc.anios>1?'s':''):'') + (esc.anios>0&&esc.meses>0?' ':'' ) + (esc.meses>0?esc.meses+' mes'+(esc.meses>1?'es':''):'') : '0';
+
+            // Calcular fecha inicio y fin del proyecto recurrente
+            const inicioBloqueEl = document.getElementById('m40_bloque_inicio_mod40');
+            const inicioMod40El = document.getElementById('m40_fecha_inicio_mod40');
+            let dInicioRec;
+            if (inicioBloqueEl && inicioBloqueEl.style.display !== 'none' && inicioMod40El && inicioMod40El.value) {
+                dInicioRec = new Date(inicioMod40El.value + 'T00:00:00');
+            } else {
+                dInicioRec = new Date();
+            }
+            const fechaInicioRec = dInicioRec.toISOString().slice(0,10);
+            const dFin = new Date(dInicioRec);
+            dFin.setDate(dFin.getDate() + diasCotizados);
+            const fechaFinRec = dFin.toISOString().slice(0,10);
+
+            m40_mostrarEscenario(esc.id, {
+                label: 'Plazo: ' + labelPlazo,
+                con: pensionMejorada, mejora, semanasM40: Math.round(semanasM40),
+                semanasTotal: Math.round(semanasTotal), costo: costoTotal,
+                afore, neta: inversionNeta, roi, ganancia,
+                recargos:0, costoRetro:0, esRetro: false,
+                fechaInicio: fechaInicioRec, fechaFin: fechaFinRec
+            });
+        });
+
+        document.getElementById('m40_resultados_placeholder').style.display='none';
+        document.getElementById('m40_resultados').style.display='block';
+        m40_showTab(1);
+    }
+}
+
+function m40_calcularGanancia(mejora) {
+    let total = 0, m = mejora;
+    for (let i=0;i<240;i++) { if(i>0&&i%12===0) m*=1.045; total+=m; }
+    return total;
+}
+
+function m40_mostrarEscenario(id, d) {
+    const fmt = v => '$ ' + Math.max(0,v).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const set = (sid,val) => { const el=document.getElementById('m40_'+id+'_'+sid); if(el) el.textContent=val; };
+
+    document.getElementById('m40_'+id+'_label').textContent = d.label;
+    // Mostrar fechas de inicio y fin
+    const fechasEl = document.getElementById('m40_'+id+'_fechas');
+    if (fechasEl && d.fechaInicio && d.fechaFin) {
+        const fmtFecha = f => new Date(f+'T00:00:00').toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+        fechasEl.textContent = 'Inicio: '+fmtFecha(d.fechaInicio)+'  →  Término: '+fmtFecha(d.fechaFin);
+    } else if (fechasEl) {
+        fechasEl.textContent = '';
+    }
+    set('con',   fmt(d.con));
+    set('mejora',fmt(d.mejora));
+    set('semanas', d.semanasM40+' semanas');
+    set('semanas_total', d.semanasTotal+' semanas');
+    set('costo', fmt(d.costo));
+    set('afore', fmt(d.afore));
+    set('neta',  fmt(d.neta));
+    set('roi',   d.roi<200 ? Math.round(d.roi)+' meses' : 'No recomendable');
+    set('ganancia', fmt(d.ganancia));
+
+    // Termómetro
+    const term = document.getElementById('m40_'+id+'_termometro');
+    const roi = d.roi;
+    if (roi<=12)      { term.style.cssText='margin-top:0.8rem;border-radius:8px;padding:0.6rem;text-align:center;font-weight:800;font-size:0.82rem;background:rgba(34,197,94,0.15);border:1.5px solid #22c55e;color:#22c55e;'; term.textContent='EXCELENTE — Recuperas en '+Math.round(roi)+' meses'; }
+    else if (roi<=24) { term.style.cssText='margin-top:0.8rem;border-radius:8px;padding:0.6rem;text-align:center;font-weight:800;font-size:0.82rem;background:rgba(207,181,59,0.15);border:1.5px solid var(--oro);color:var(--oro);'; term.textContent='BUENA INVERSION — Recuperas en '+Math.round(roi)+' meses'; }
+    else if (roi<=48) { term.style.cssText='margin-top:0.8rem;border-radius:8px;padding:0.6rem;text-align:center;font-weight:800;font-size:0.82rem;background:rgba(249,115,22,0.15);border:1.5px solid #f97316;color:#f97316;'; term.textContent='INVERSION MODERADA — Recuperas en '+Math.round(roi)+' meses'; }
+    else              { term.style.cssText='margin-top:0.8rem;border-radius:8px;padding:0.6rem;text-align:center;font-weight:800;font-size:0.82rem;background:rgba(239,68,68,0.15);border:1.5px solid #ef4444;color:#ef4444;'; term.textContent='NO RECOMENDABLE — Periodo de recuperacion muy largo'; }
+}
+
+function m40_showTab(n) {
+    [1,2,3].forEach(i => {
+        const panel = document.getElementById('m40_panel_e'+i);
+        const tab   = document.getElementById('m40_tab'+i);
+        if (!panel||!tab) return;
+        if (i===n) {
+            panel.style.display='block';
+            tab.style.background='var(--oro)'; tab.style.color='var(--oxford)'; tab.style.border='none';
+        } else {
+            panel.style.display='none';
+            tab.style.background='rgba(207,181,59,0.15)'; tab.style.color='var(--oro)'; tab.style.border='1px solid rgba(207,181,59,0.3)';
+        }
+    });
+}
+
+
+function calcularPensionMod40(sbc, semanas) {
+    // Misma lógica del Paso 2 simplificada
+    const UMA = 117.31;
+    const PMG = 10636.54;
+    
+    // Veces UMA
+    const vuma = sbc / UMA;
+    
+    // Cuantía básica
+    let pctCB = 0;
+    if (vuma <= 1) pctCB = 0.90;
+    else if (vuma <= 1.5) pctCB = 0.875;
+    else if (vuma <= 2) pctCB = 0.85;
+    else if (vuma <= 2.5) pctCB = 0.825;
+    else if (vuma <= 3) pctCB = 0.80;
+    else if (vuma <= 3.5) pctCB = 0.775;
+    else if (vuma <= 4) pctCB = 0.75;
+    else if (vuma <= 4.5) pctCB = 0.725;
+    else if (vuma <= 5) pctCB = 0.70;
+    else if (vuma <= 6) pctCB = 0.675;
+    else if (vuma <= 7) pctCB = 0.65;
+    else if (vuma <= 8) pctCB = 0.625;
+    else if (vuma <= 9) pctCB = 0.60;
+    else if (vuma <= 10) pctCB = 0.575;
+    else if (vuma <= 11) pctCB = 0.55;
+    else if (vuma <= 12) pctCB = 0.525;
+    else if (vuma <= 13) pctCB = 0.50;
+    else if (vuma <= 14) pctCB = 0.475;
+    else if (vuma <= 15) pctCB = 0.45;
+    else if (vuma <= 16) pctCB = 0.425;
+    else if (vuma <= 17) pctCB = 0.40;
+    else if (vuma <= 18) pctCB = 0.375;
+    else if (vuma <= 19) pctCB = 0.35;
+    else if (vuma <= 20) pctCB = 0.325;
+    else if (vuma <= 21) pctCB = 0.30;
+    else if (vuma <= 22) pctCB = 0.275;
+    else if (vuma <= 23) pctCB = 0.25;
+    else if (vuma <= 24) pctCB = 0.225;
+    else pctCB = 0.20;
+
+    const cuantiaDiariaBase = sbc * pctCB;
+    // Incrementos por semanas sobre 500
+    const semanasExcedentes = Math.max(0, semanas - 500);
+    const aniosExcedentes = semanasExcedentes / 52;
+    const incremento = cuantiaDiariaBase * 0.02033 * aniosExcedentes;
+    const cuantiaTotal = (cuantiaDiariaBase + incremento) * 365;
+    
+    // Asignación familiar (con esposa = 15% base, sin contexto familiar usamos 15%)
+    const asignacion = cuantiaTotal * 0.15;
+    const subtotal = cuantiaTotal + asignacion;
+    
+    // Decreto Fox 11%
+    const conFox = subtotal * 1.11;
+    
+    // Factor edad 60 años = 75%
+    const conEdad = conFox * 0.75;
+    
+    // PMG como piso
+    const pensionAnual = Math.max(conEdad, PMG * 12);
+    
+    return pensionAnual / 12;
+}
+
+// Actualizar panel de pensión actual cuando se calcule en Paso 2
+function m40_sincronizarPension() {
+    const neto = document.getElementById('out_neto');
+    if (neto) {
+        const val = neto.textContent;
+        const el = document.getElementById('m40_pension_actual');
+        if (el && val && val !== '$ 0.00') {
+            el.innerHTML = val + ' <span style="font-size:0.8rem;font-weight:400;color:rgba(255,255,255,0.4)"">/ mes</span>';
+        }
+    }
+}
+
+// Inicializar Módulo 40 al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    m40_actualizar();
+});
+
+function m40_generarPDF() {
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) { alert('Error al cargar jsPDF'); return; }
+
+    const sinEl = document.getElementById('m40_r_sin');
+    if (!sinEl || sinEl.textContent === '$ 0.00') { alert('Primero calcula el proyecto'); return; }
+
+    const tipoPago = document.getElementById('m40_tipo_pago')?.value || 'recurrente';
+    const esRetro  = tipoPago === 'retroactivo';
+
+    const doc    = new jsPDF({ orientation:'portrait', unit:'mm', format:'letter' });
+    const W      = 210;
+    const M      = 15; // margen
+    const oro    = [207,181,59];
+    const oxford = [0,33,71];
+    const gris   = [60,60,60];
+    const blanco = [255,255,255];
+    const verde  = [21,128,61];
+    const rojo   = [185,28,28];
+    const azulCl = [230,235,245];
+    const hoy    = new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+
+    const txt = (t,x,y,o={}) => doc.text(String(t),x,y,o);
+    const fmt = v => {
+        const n = parseFloat(String(v).replace(/[^0-9.]/g,''));
+        return isNaN(n) ? v : '$ '+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    };
+    const limpiar = s => String(s||'').replace(/[^\w\sáéíóúÁÉÍÓÚñÑüÜ$.,\-—%()]/g,'').trim();
+
+    // ── HELPER: dibujar header de página ──
+    function dibujarHeader(numPag, totalPag) {
+        doc.setFillColor(...oxford);
+        doc.rect(0,0,W,28,'F');
+        doc.setFillColor(...oro);
+        doc.rect(0,28,W,1.2,'F');
+
+        doc.setTextColor(...oro);
+        doc.setFontSize(15); doc.setFont('helvetica','bold');
+        txt('PensionLey73', M, 11);
+        doc.setFontSize(7); doc.setFont('helvetica','normal');
+        doc.setTextColor(200,200,200);
+        txt('Pensionando a Mexico · Herramienta Profesional de Calculo', M, 17);
+
+        doc.setTextColor(...oro);
+        doc.setFontSize(11); doc.setFont('helvetica','bold');
+        txt('PROYECCION MODALIDAD 40', W-M, 11, {align:'right'});
+        doc.setFontSize(8); doc.setFont('helvetica','normal');
+        doc.setTextColor(200,200,200);
+        txt(esRetro ? 'PAGO RETROACTIVO' : 'PAGO RECURRENTE', W-M, 17, {align:'right'});
+        txt('Fecha: '+hoy+'  |  Pag. '+numPag+' / '+totalPag, W-M, 23, {align:'right'});
+    }
+
+    // ── HELPER: fila de tabla ──
+    function fila(y, label, valor, colorVal, sombreado) {
+        if (sombreado) { doc.setFillColor(...azulCl); doc.rect(M, y-1, W-M*2, 7,'F'); }
+        doc.setFontSize(8); doc.setFont('helvetica','normal');
+        doc.setTextColor(...gris);
+        txt(label, M+2, y+4);
+        doc.setFont('helvetica','bold');
+        doc.setTextColor(...(colorVal||oxford));
+        txt(valor, W-M-1, y+4, {align:'right'});
+        return y+7;
+    }
+
+    // ── HELPER: termómetro ──
+    function termometro(y, texto) {
+        const t = limpiar(texto);
+        const col = t.includes('EXCELENTE') ? verde :
+                    t.includes('BUENA')     ? [180,150,10] :
+                    t.includes('MODERADA')  ? [200,100,0]  : rojo;
+        doc.setFillColor(...col);
+        doc.roundedRect(M, y, W-M*2, 10, 2, 2, 'F');
+        doc.setTextColor(...blanco);
+        doc.setFontSize(9); doc.setFont('helvetica','bold');
+        txt(t, W/2, y+7, {align:'center'});
+        return y+14;
+    }
+
+    // ── HELPER: bloque ROI ──
+    function bloqueROI(y, roiText, gananciaText) {
+        doc.setFillColor(...oxford);
+        doc.roundedRect(M, y, W-M*2, 13, 2, 2, 'F');
+        doc.setFillColor(...oro);
+        doc.roundedRect(M, y, 48, 13, 2, 2, 'F');
+        doc.setTextColor(...oxford);
+        doc.setFontSize(8); doc.setFont('helvetica','bold');
+        txt('RECUPERACION', M+24, y+5, {align:'center'});
+        txt('DE INVERSION', M+24, y+10, {align:'center'});
+        doc.setTextColor(...oro);
+        doc.setFontSize(14); doc.setFont('helvetica','bold');
+        txt(limpiar(roiText), W-M-2, y+10, {align:'right'});
+        y += 17;
+
+        doc.setFillColor(240,253,244);
+        doc.roundedRect(M, y, W-M*2, 11, 2, 2, 'F');
+        doc.setTextColor(...gris);
+        doc.setFontSize(8); doc.setFont('helvetica','normal');
+        txt('Ganancia Total (80 años · Esperanza de Vida)', M+3, y+7.5);
+        doc.setTextColor(...verde);
+        doc.setFontSize(12); doc.setFont('helvetica','bold');
+        txt(fmt(limpiar(gananciaText)), W-M-2, y+8.5, {align:'right'});
+        return y+15;
+    }
+
+    // ── HELPER: encabezado de escenario ──
+    function headerEscenario(y, num, labelPlazo) {
+        doc.setFillColor(...oro);
+        doc.roundedRect(M, y, W-M*2, 9, 2, 2, 'F');
+        doc.setTextColor(...oxford);
+        doc.setFontSize(10); doc.setFont('helvetica','bold');
+        txt('ESCENARIO '+num+'  |  '+limpiar(labelPlazo), W/2, y+6.5, {align:'center'});
+        return y+13;
+    }
+
+    // ── HELPER: pensión SIN arriba de cada escenario ──
+    function pensionSinCon(y, sinVal, conVal) {
+        const colW = (W-M*2)/2 - 2;
+        doc.setFillColor(255,235,235);
+        doc.roundedRect(M, y, colW, 14, 2, 2, 'F');
+        doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gris);
+        txt('SIN Modalidad 40', M+colW/2, y+5, {align:'center'});
+        doc.setFontSize(12); doc.setFont('helvetica','bold'); doc.setTextColor(...rojo);
+        txt(fmt(limpiar(sinVal)), M+colW/2, y+12, {align:'center'});
+
+        doc.setFillColor(235,255,240);
+        doc.roundedRect(M+colW+4, y, colW, 14, 2, 2, 'F');
+        doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gris);
+        txt('CON Modalidad 40', M+colW+4+colW/2, y+5, {align:'center'});
+        doc.setFontSize(12); doc.setFont('helvetica','bold'); doc.setTextColor(...verde);
+        txt(fmt(limpiar(conVal)), M+colW+4+colW/2, y+12, {align:'center'});
+        return y+18;
+    }
+
+    // ── HELPER: sección título ──
+    function secTitulo(y, titulo) {
+        doc.setFillColor(...oxford);
+        doc.rect(M, y, W-M*2, 7, 'F');
+        doc.setTextColor(...oro);
+        doc.setFontSize(9); doc.setFont('helvetica','bold');
+        txt(titulo, M+3, y+5);
+        return y+10;
+    }
+
+    // ── HELPER: footer de página ──
+    function dibujarFooter() {
+        doc.setFillColor(...oxford);
+        doc.rect(0,253,W,14,'F');
+        doc.setFontSize(6.5); doc.setFont('helvetica','normal');
+        doc.setTextColor(...oro);
+        txt('© 2026 Pensionando a Mexico — Todos los derechos reservados', W/2, 259, {align:'center'});
+        doc.setTextColor(180,180,180);
+        txt('Los resultados son estimaciones informativas. Consulte siempre con un especialista antes de tomar decisiones.', W/2, 264, {align:'center'});
+    }
+
+    // ── RECOPILAR DATOS ──
+    const sinPension = document.getElementById('m40_r_sin')?.textContent || '0';
+    const umas       = document.getElementById('m40_umas')?.value || '25';
+    const equiv      = document.getElementById('m40_salario_equiv')?.textContent || '';
+    const semAct     = document.getElementById('m40_semanas_actuales')?.value || '0';
+    const fechaBaja  = document.getElementById('m40_fecha_baja')?.value || '';
+
+    const totalPag = esRetro ? 2 : 4; // retro: portada + datos; recurrente: portada + 3 escenarios
+
+    // ════════════════════════════════════════
+    // PÁGINA 1 — PORTADA / RESUMEN GENERAL
+    // ════════════════════════════════════════
+    dibujarHeader(1, totalPag);
+    let y = 35;
+
+    // Título portada
+    doc.setFillColor(...oxford);
+    doc.roundedRect(M, y, W-M*2, 14, 3, 3, 'F');
+    doc.setFillColor(...oro);
+    doc.roundedRect(M, y, 5, 14, 1, 1, 'F');
+    doc.setTextColor(...blanco);
+    doc.setFontSize(12); doc.setFont('helvetica','bold');
+    txt(esRetro ? 'Proyecto de Pension con Modalidad 40 Retroactiva' : 'Proyecto de Pension con Modalidad 40 Recurrente', M+10, y+6);
+    doc.setFontSize(8); doc.setFont('helvetica','normal');
+    txt('Analisis completo de inversion y mejora de pension', M+10, y+11.5);
+    y += 18;
+
+    // Datos generales
+    y = secTitulo(y, 'DATOS GENERALES DEL PROYECTO');
+    const datosGen = [
+        ['Salario registrado en Modalidad 40', umas+" UMA's · "+limpiar(equiv)],
+        ['Semanas cotizadas actuales', semAct+' semanas'],
+        ['Fecha de baja IMSS', fechaBaja],
+        ['Pension mensual SIN Modalidad 40', limpiar(sinPension)],
+        ['Forma de pago', esRetro ? 'Retroactivo (una exhibicion)' : 'Recurrente (mes a mes)'],
+    ];
+    if (esRetro) {
+        const ft = document.getElementById('m40_fecha_termino_retro')?.value || '';
+        datosGen.push(['Fecha termino retroactivo', ft]);
+    }
+    datosGen.forEach((d,i) => { y = fila(y, d[0], d[1], oxford, i%2===0); });
+    y += 6;
+
+    if (esRetro) {
+        // ── RETROACTIVO: mostrar resultado único ──
+        y = secTitulo(y, 'RESULTADO DEL PROYECTO RETROACTIVO');
+        const eId = 'e1';
+        y = pensionSinCon(y, sinPension, document.getElementById('m40_'+eId+'_con')?.textContent||'');
+        const filasRetro = [
+            ['Mejora mensual de pension', document.getElementById('m40_'+eId+'_mejora')?.textContent||'', oro],
+            ['Semanas ganadas en Modalidad 40', document.getElementById('m40_'+eId+'_semanas')?.textContent||'', null],
+            ['Total semanas para pension', document.getElementById('m40_'+eId+'_semanas_total')?.textContent||'', null],
+            ['Costo base Modalidad 40', document.getElementById('m40_'+eId+'_costo')?.textContent||'', rojo],
+            ['+ Actualizaciones y recargos', document.getElementById('m40_fila_retro')?.cells[1]?.textContent||'', rojo],
+            ['Costo retroactivo total', document.getElementById('m40_fila_retro2')?.cells[1]?.textContent||'', rojo],
+            ['RECUPERAS VIA AFORE (20%)', document.getElementById('m40_'+eId+'_afore')?.textContent||'', verde],
+            ['Inversion neta (descontando AFORE)', document.getElementById('m40_'+eId+'_neta')?.textContent||'', null],
+        ];
+        filasRetro.forEach((f,i) => { y = fila(y, f[0], limpiar(f[1]), f[2], i%2===0); });
+        y += 4;
+        y = bloqueROI(y,
+            document.getElementById('m40_e1_roi')?.textContent||'',
+            document.getElementById('m40_e1_ganancia')?.textContent||''
+        );
+        y = termometro(y, document.getElementById('m40_e1_termometro')?.textContent||'');
+
+    } else {
+        // ── RECURRENTE: tabla comparativa de los 3 escenarios ──
+        y = secTitulo(y, 'COMPARATIVA DE LOS 3 ESCENARIOS');
+
+        // Cabecera tabla
+        doc.setFillColor(...oxford);
+        doc.rect(M, y, W-M*2, 8, 'F');
+        doc.setTextColor(...oro);
+        doc.setFontSize(8); doc.setFont('helvetica','bold');
+        const cw = (W-M*2)/4;
+        txt('Concepto',           M+2,       y+5.5);
+        txt('Escenario 1',        M+cw+cw/2, y+5.5, {align:'center'});
+        txt('Escenario 2',        M+cw*2+cw/2,y+5.5,{align:'center'});
+        txt('Escenario 3',        M+cw*3+cw/2,y+5.5,{align:'center'});
+        y += 8;
+
+        const comparRows = [
+            { label:'Plazo de inversion',   ids:['label','label','label'],         fmt:false },
+            { label:'Pension CON Mod 40',   ids:['con','con','con'],               fmt:false, col:verde },
+            { label:'Mejora mensual',        ids:['mejora','mejora','mejora'],      fmt:false, col:oro },
+            { label:'Semanas ganadas',       ids:['semanas','semanas','semanas'],   fmt:false },
+            { label:'Costo Mod 40',          ids:['costo','costo','costo'],         fmt:false, col:rojo },
+            { label:'Recuperas via AFORE',   ids:['afore','afore','afore'],         fmt:false, col:verde },
+            { label:'Inversion neta',        ids:['neta','neta','neta'],            fmt:false },
+            { label:'Recuperacion inversion',ids:['roi','roi','roi'],               fmt:false, col:oro },
+            { label:'Ganancia Total (80 años · Esperanza de Vida)',ids:['ganancia','ganancia','ganancia'],fmt:false, col:verde },
+        ];
+
+        comparRows.forEach((row, ri) => {
+            if (ri%2===0) { doc.setFillColor(...azulCl); doc.rect(M, y, W-M*2, 7,'F'); }
+            doc.setFontSize(7.5); doc.setFont('helvetica','normal'); doc.setTextColor(...gris);
+            txt(row.label, M+2, y+5);
+            [1,2,3].forEach((n,ni) => {
+                const el = document.getElementById('m40_e'+n+'_'+row.ids[ni]);
+                let val = limpiar(el?.textContent||'-');
+                doc.setFont('helvetica','bold');
+                doc.setTextColor(...(row.col||oxford));
+                txt(val, M+cw*(ni+1)+cw/2, y+5, {align:'center'});
+            });
+            y += 7;
+        });
+        y += 6;
+
+        // Termómetros comparativos
+        y = secTitulo(y, 'EVALUACION DE CADA ESCENARIO');
+        [1,2,3].forEach(n => {
+            const termEl = document.getElementById('m40_e'+n+'_termometro');
+            const termTxt = termEl?.textContent || '';
+            const labelEl = document.getElementById('m40_e'+n+'_label');
+            const plazo = limpiar(labelEl?.textContent||'Escenario '+n);
+            const col = termTxt.includes('EXCELENTE') ? verde :
+                        termTxt.includes('BUENA')     ? [180,150,10] :
+                        termTxt.includes('MODERADA')  ? [200,100,0]  : rojo;
+            doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.setTextColor(...gris);
+            txt('Esc. '+n+' ('+plazo+')', M, y+5);
+            doc.setFillColor(...col);
+            doc.roundedRect(M+38, y, W-M*2-38, 8, 2, 2, 'F');
+            doc.setTextColor(...blanco);
+            doc.setFontSize(8); doc.setFont('helvetica','bold');
+            txt(limpiar(termTxt), M+38+(W-M*2-38)/2, y+5.5, {align:'center'});
+            y += 11;
+        });
+    }
+
+    dibujarFooter();
+
+    // ════════════════════════════════════════
+    // PÁGINAS 2-4 — UN ESCENARIO POR PÁGINA (solo recurrente)
+    // ════════════════════════════════════════
+    if (!esRetro) {
+        [1,2,3].forEach(n => {
+            doc.addPage();
+            dibujarHeader(n+1, totalPag);
+            y = 35;
+
+            const labelEl  = document.getElementById('m40_e'+n+'_label');
+            const plazo    = limpiar(labelEl?.textContent || 'Escenario '+n);
+            y = headerEscenario(y, n, plazo);
+            y = pensionSinCon(y, sinPension, document.getElementById('m40_e'+n+'_con')?.textContent||'');
+
+            y = secTitulo(y, 'DETALLE DEL ESCENARIO '+n);
+            const filasEsc = [
+                ['Mejora mensual de pension',         document.getElementById('m40_e'+n+'_mejora')?.textContent||'',          oro],
+                ['Semanas ganadas en Modalidad 40',   document.getElementById('m40_e'+n+'_semanas')?.textContent||'',         null],
+                ['Total semanas para pension',         document.getElementById('m40_e'+n+'_semanas_total')?.textContent||'',  null],
+                ['Costo total Modalidad 40',           document.getElementById('m40_e'+n+'_costo')?.textContent||'',          rojo],
+                ['RECUPERAS VIA AFORE (20% del costo)',document.getElementById('m40_e'+n+'_afore')?.textContent||'',          verde],
+                ['Inversion neta (descontando AFORE)', document.getElementById('m40_e'+n+'_neta')?.textContent||'',           null],
+            ];
+            filasEsc.forEach((f,i) => { y = fila(y, f[0], limpiar(f[1]), f[2], i%2===0); });
+            y += 5;
+
+            y = bloqueROI(y,
+                document.getElementById('m40_e'+n+'_roi')?.textContent||'',
+                document.getElementById('m40_e'+n+'_ganancia')?.textContent||''
+            );
+            y += 2;
+            y = termometro(y, document.getElementById('m40_e'+n+'_termometro')?.textContent||'');
+
+            // Nota al pie del escenario
+            y += 4;
+            doc.setFontSize(7); doc.setFont('helvetica','italic'); doc.setTextColor(140,140,140);
+            const nota = 'El costo considera el valor de la UMA al ingreso y las tasas IMSS vigentes por año. Del costo total se recupera el 20% via AFORE al tramitar la pension.';
+            const lines = doc.splitTextToSize(nota, W-M*2);
+            doc.text(lines, M, y);
+
+            dibujarFooter();
+        });
+    }
+
+    doc.save('ProyeccionModalidad40_'+(esRetro?'Retroactivo':'Recurrente')+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+}
+
+
+// Inicializar Módulo 40 al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    m40_actualizar();
+});
+
+
+
+</script>
+
+
+    <!-- ══════════════════════════════════════════════════════
+         PANEL ADMINISTRADOR — solo visible con MASTER-2026
+    ══════════════════════════════════════════════════════ -->
+    <div id="admin-panel" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;backdrop-filter:blur(6px);">
+        <div style="max-width:780px;margin:2rem auto;background:#0d1526;border-radius:16px;border:1px solid rgba(207,181,59,0.3);overflow:hidden;">
+
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#002147,#001530);padding:1.2rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid rgba(207,181,59,0.3);">
+                <div>
+                    <div style="color:var(--oro);font-size:1.2rem;font-weight:800;">Panel Administrador</div>
+                    <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;margin-top:2px;">Pensionando a México · Solo visible con MASTER-2026</div>
+                </div>
+                <button onclick="cerrarAdmin()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;">✕ Cerrar</button>
+            </div>
+
+            <div style="padding:1.5rem;">
+
+                <!-- TABS -->
+                <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;">
+                    <button onclick="adminTab('crear')" id="atab_crear" style="flex:1;padding:0.5rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:800;cursor:pointer;background:var(--oro);color:var(--oxford);border:none;">+ Crear</button>
+                    <button onclick="adminTab('lista')" id="atab_lista" style="flex:1;padding:0.5rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);">Códigos</button>
+                    <button onclick="adminTab('stats')" id="atab_stats" style="flex:1;padding:0.5rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);">Stats</button>
+                    <button onclick="adminTab('config')" id="atab_config" style="flex:1;padding:0.5rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);">⚙️ Config</button>
+                </div>
+
+                <!-- TAB: CREAR CÓDIGO -->
+                <div id="admin_crear">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                        <div>
+                            <label style="font-size:0.72rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Código de acceso</label>
+                            <input id="adm_codigo" type="text" placeholder="Ej: CLIENTE-2026" maxlength="30"
+                                style="width:100%;background:#071020;border:1px solid rgba(207,181,59,0.3);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;box-sizing:border-box;"
+                                oninput="this.value=this.value.toUpperCase()">
+                            <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:3px;">Solo letras, números y guiones</div>
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem;color:rgba(255,255,255,0.5);display:block;margin-bottom:4px;">Días de acceso</label>
+                            <select id="adm_dias" style="width:100%;background:#071020;border:1px solid rgba(207,181,59,0.3);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;box-sizing:border-box;">
+                                <option value="3">3 días — Demo gratuita</option>
+                                <option value="7" selected>7 días — $249 MXN ⭐</option>
+                                <option value="15">15 días — $349 MXN</option>
+                                <option value="30">30 días — $499 MXN</option>
+                                <option value="9999">Sin límite — Regalo / Socio</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Preview del código -->
+                    <div id="adm_preview" style="background:rgba(207,181,59,0.06);border:1px solid rgba(207,181,59,0.2);border-radius:8px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:0.8rem;color:rgba(255,255,255,0.6);display:none;">
+                        Código: <strong id="adm_prev_codigo" style="color:var(--oro)"></strong> &nbsp;·&nbsp;
+                        Válido: <strong id="adm_prev_dias" style="color:#fff"></strong> &nbsp;·&nbsp;
+                        Expira: <strong id="adm_prev_expira" style="color:#fff"></strong>
+                    </div>
+
+                    <div style="display:flex;gap:0.8rem;">
+                        <button onclick="adminGenerarCodigo()" style="flex:1;background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);padding:0.6rem;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;">🎲 Generar aleatorio</button>
+                        <button onclick="adminCrearCodigo()" id="adm_btn_crear" style="flex:2;background:linear-gradient(135deg,var(--oro),#b8960c);color:var(--oxford);border:none;padding:0.6rem;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:800;">✅ Crear Código</button>
+                    </div>
+                    <div id="adm_msg_crear" style="margin-top:0.8rem;padding:0.6rem 1rem;border-radius:6px;font-size:0.82rem;font-weight:600;display:none;"></div>
+                </div>
+
+                <!-- TAB: LISTA DE CÓDIGOS -->
+                <div id="admin_lista" style="display:none;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                        <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;" id="adm_total_codigos">Cargando...</span>
+                        <button onclick="adminCargarCodigos()" style="background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);padding:0.35rem 0.8rem;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:700;">↻ Actualizar</button>
+                    </div>
+                    <div id="adm_tabla_codigos" style="overflow-x:auto;">
+                        <div style="text-align:center;padding:2rem;color:rgba(255,255,255,0.3);">Haz clic en "Actualizar" para cargar</div>
+                    </div>
+                </div>
+
+                <!-- TAB: CONFIGURACIÓN DE PRECIOS -->
+                <div id="admin_config" style="display:none;">
+                    <div style="color:rgba(255,255,255,0.5);font-size:0.75rem;margin-bottom:1rem;">
+                        Ajusta los paquetes de venta. Los cambios se guardan en tu navegador y se aplican de inmediato al crear códigos.
+                    </div>
+
+                    <!-- PAQUETES -->
+                    <div id="cfg_paquetes" style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.2rem;"></div>
+
+                    <div style="display:flex;gap:0.8rem;margin-bottom:1rem;">
+                        <button onclick="cfgAgregarPaquete()" style="flex:1;background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);padding:0.5rem;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;">+ Agregar paquete</button>
+                        <button onclick="cfgGuardar()" style="flex:2;background:linear-gradient(135deg,var(--oro),#b8960c);color:var(--oxford);border:none;padding:0.5rem;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:800;">💾 Guardar cambios</button>
+                    </div>
+                    <div id="cfg_msg" style="display:none;padding:0.5rem 1rem;border-radius:6px;font-size:0.82rem;font-weight:600;"></div>
+
+
+                </div>
+
+                <!-- TAB: ESTADÍSTICAS -->
+                <div id="admin_stats" style="display:none;">
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem;" id="adm_stats_cards">
+                        <div style="background:rgba(207,181,59,0.08);border:1px solid rgba(207,181,59,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:800;color:var(--oro);" id="stat_total">—</div>
+                            <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Total códigos</div>
+                        </div>
+                        <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:800;color:#22c55e;" id="stat_activos">—</div>
+                            <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Activos/vigentes</div>
+                        </div>
+                        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:800;color:#ef4444;" id="stat_expirados">—</div>
+                            <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Expirados</div>
+                        </div>
+                    </div>
+                    <button onclick="adminCargarStats()" style="width:100%;background:linear-gradient(135deg,var(--oro),#b8960c);color:var(--oxford);border:none;padding:0.7rem;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:800;">Cargar estadísticas</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón flotante admin (solo visible con MASTER) -->
+    <button id="admin-fab" onclick="abrirAdmin()" style="display:none;position:fixed;bottom:1.5rem;right:1.5rem;background:linear-gradient(135deg,var(--oro),#b8960c);color:var(--oxford);border:none;width:52px;height:52px;border-radius:50%;font-size:1.3rem;cursor:pointer;z-index:1000;box-shadow:0 4px 20px rgba(207,181,59,0.4);font-weight:800;" title="Panel Admin">👑</button>
+
+
+    <script>
+    // ══════════════════════════════════════════════════
+    // PANEL ADMINISTRADOR JS
+    // ══════════════════════════════════════════════════
+
+    function abrirAdmin() {
+        document.getElementById('admin-panel').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        adminCargarCodigos();
+        adminCargarStats();
+        cfgInicializar();
+    }
+
+    function cerrarAdmin() {
+        document.getElementById('admin-panel').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function adminTab(tab) {
+        ['crear','lista','stats','config'].forEach(t => {
+            document.getElementById('admin_'+t).style.display = t===tab ? 'block' : 'none';
+            const btn = document.getElementById('atab_'+t);
+            if (t===tab) {
+                btn.style.background = 'var(--oro)'; btn.style.color = 'var(--oxford)'; btn.style.border = 'none';
+            } else {
+                btn.style.background = 'rgba(207,181,59,0.12)'; btn.style.color = 'var(--oro)'; btn.style.border = '1px solid rgba(207,181,59,0.3)';
+            }
+        });
+        if (tab==='lista')  adminCargarCodigos();
+        if (tab==='stats')  adminCargarStats();
+        if (tab==='config') cfgInicializar();
+    }
+
+    function adminGenerarCodigo() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i=0;i<8;i++) code += chars[Math.floor(Math.random()*chars.length)];
+        document.getElementById('adm_codigo').value = code;
+        adminActualizarPreview();
+    }
+
+    function adminActualizarPreview() {
+        const codigo = document.getElementById('adm_codigo').value.trim();
+        const dias   = parseInt(document.getElementById('adm_dias').value);
+        if (!codigo) { document.getElementById('adm_preview').style.display='none'; return; }
+        const expira = dias===9999 ? 'Sin límite' : new Date(Date.now()+dias*86400000).toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+        document.getElementById('adm_prev_codigo').textContent = codigo;
+        document.getElementById('adm_prev_dias').textContent   = dias===9999 ? 'Sin límite' : dias+' días';
+        document.getElementById('adm_prev_expira').textContent = expira;
+        document.getElementById('adm_preview').style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const inp = document.getElementById('adm_codigo');
+        const sel = document.getElementById('adm_dias');
+        if (inp) inp.addEventListener('input', adminActualizarPreview);
+        if (sel) sel.addEventListener('change', adminActualizarPreview);
+    });
+
+    async function adminCrearCodigo() {
+        const codigo = document.getElementById('adm_codigo').value.trim().toUpperCase();
+        const dias   = parseInt(document.getElementById('adm_dias').value);
+        const msgEl  = document.getElementById('adm_msg_crear');
+        const btn    = document.getElementById('adm_btn_crear');
+
+        if (!codigo) { adminMsg('error','Ingresa un código'); return; }
+        if (!/^[A-Z0-9\-]+$/.test(codigo)) { adminMsg('error','Solo letras, números y guiones'); return; }
+
+        btn.disabled = true; btn.textContent = 'Creando...';
+
+        // Calcular fecha_expiracion
+        const fechaExp = dias===9999
+            ? '2099-12-31T00:00:00Z'
+            : new Date(Date.now()+dias*86400000).toISOString();
+
+        try {
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_ANON,
+                    'Authorization': `Bearer ${SUPABASE_ANON}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify({
+                    codigo:           codigo,
+                    nombre_cliente:   'DISPONIBLE',
+                    activo:           false,
+                    fecha_expiracion: fechaExp
+                })
+            });
+
+            if (res.status === 201 || res.status === 200) {
+                adminMsg('ok', `✅ Código <strong>${codigo}</strong> creado — ${dias===9999?'Sin límite':dias+' días'}`);
+                document.getElementById('adm_codigo').value = '';
+                document.getElementById('adm_preview').style.display = 'none';
+            } else {
+                const err = await res.json();
+                if (err.code === '23505') {
+                    adminMsg('error', `El código "${codigo}" ya existe. Usa uno diferente.`);
+                } else {
+                    adminMsg('error', 'Error Supabase: '+(err.message||res.status));
+                }
+            }
+        } catch(e) {
+            adminMsg('error', 'Error de conexión: '+e.message);
+        }
+        btn.disabled = false; btn.textContent = '✅ Crear Código';
+    }
+
+    function adminMsg(tipo, texto) {
+        const el = document.getElementById('adm_msg_crear');
+        el.innerHTML = texto;
+        el.style.display = 'block';
+        if (tipo==='ok') {
+            el.style.background='rgba(34,197,94,0.15)'; el.style.border='1px solid rgba(34,197,94,0.4)'; el.style.color='#22c55e';
+        } else {
+            el.style.background='rgba(239,68,68,0.15)'; el.style.border='1px solid rgba(239,68,68,0.4)'; el.style.color='#ef4444';
+        }
+        setTimeout(()=>{ el.style.display='none'; }, 5000);
+    }
+
+    async function adminCargarCodigos() {
+        const contenedor = document.getElementById('adm_tabla_codigos');
+        const totalEl    = document.getElementById('adm_total_codigos');
+        if (!contenedor) return;
+        contenedor.innerHTML = '<div style="text-align:center;padding:1.5rem;color:rgba(255,255,255,0.4);">Cargando...</div>';
+
+        try {
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?select=*&order=fecha_expiracion.desc`,
+                { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }}
+            );
+            const data = await res.json();
+            if (!Array.isArray(data)) throw new Error('Sin datos');
+
+            const hoy = new Date();
+            totalEl.textContent = `${data.length} códigos en total`;
+
+            if (data.length===0) {
+                contenedor.innerHTML = '<div style="text-align:center;padding:1.5rem;color:rgba(255,255,255,0.3);">No hay códigos registrados</div>';
+                return;
+            }
+
+            let html = `<table style="width:100%;border-collapse:collapse;font-size:0.75rem;">
+                <thead>
+                    <tr style="background:rgba(207,181,59,0.1);">
+                        <th style="padding:0.5rem 0.4rem;color:var(--oro);text-align:left;font-weight:700;">Código</th>
+                        <th style="padding:0.5rem 0.4rem;color:var(--oro);text-align:center;font-weight:700;">Estado</th>
+                        <th style="padding:0.5rem 0.4rem;color:var(--oro);text-align:center;font-weight:700;">Expira</th>
+                        <th style="padding:0.5rem 0.4rem;color:var(--oro);text-align:center;font-weight:700;">Acción</th>
+                    </tr>
+                </thead><tbody>`;
+
+            data.forEach((row, i) => {
+                const expira   = new Date(row.fecha_expiracion);
+                const expirado = expira < hoy && expira.getFullYear() < 2090;
+                const diasRest = Math.ceil((expira-hoy)/86400000);
+                const expiraStr= expira.getFullYear()>=2090 ? 'Sin límite' : expira.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+                const estadoColor = expirado ? '#ef4444' : row.activo ? '#22c55e' : 'rgba(255,255,255,0.4)';
+                const estadoTxt   = expirado ? 'Expirado' : row.activo ? 'Activo' : 'Sin usar';
+                const bg = i%2===0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+
+                html += `<tr style="background:${bg};border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <td style="padding:0.45rem 0.4rem;color:var(--oro);font-weight:700;font-family:monospace;">${row.codigo}</td>
+                    <td style="padding:0.45rem 0.4rem;text-align:center;">
+                        <span style="color:${estadoColor};font-weight:700;font-size:0.72rem;">${estadoTxt}</span>
+                        ${!expirado&&row.activo?`<div style="color:rgba(255,255,255,0.3);font-size:0.65rem;">${diasRest}d rest.</div>`:''}
+                    </td>
+                    <td style="padding:0.45rem 0.4rem;text-align:center;color:rgba(255,255,255,0.6);">${expiraStr}</td>
+                    
+                    <td style="padding:0.45rem 0.4rem;text-align:center;">
+                        <button onclick="adminDesactivar('${row.codigo}',${row.activo})" style="background:${row.activo?'rgba(239,68,68,0.15)':'rgba(34,197,94,0.15)'};color:${row.activo?'#ef4444':'#22c55e'};border:1px solid ${row.activo?'rgba(239,68,68,0.4)':'rgba(34,197,94,0.4)'};padding:0.2rem 0.5rem;border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:700;">
+                            ${row.activo?'Desactivar':'Activar'}
+                        </button>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            contenedor.innerHTML = html;
+
+        } catch(e) {
+            contenedor.innerHTML = `<div style="color:#ef4444;text-align:center;padding:1rem;">Error: ${e.message}</div>`;
+        }
+    }
+
+    async function adminDesactivar(codigo, estadoActual) {
+        try {
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?codigo=eq.${encodeURIComponent(codigo)}`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON,
+                        'Authorization': `Bearer ${SUPABASE_ANON}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ activo: !estadoActual })
+                }
+            );
+            if (res.ok) adminCargarCodigos();
+        } catch(e) { alert('Error: '+e.message); }
+    }
+
+    async function adminCargarStats() {
+        try {
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?select=*`,
+                { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }}
+            );
+            const data = await res.json();
+            if (!Array.isArray(data)) return;
+            const hoy = new Date();
+            const total    = data.length;
+            const activos  = data.filter(r => r.activo && new Date(r.fecha_expiracion)>=hoy).length;
+            const expirados= data.filter(r => new Date(r.fecha_expiracion)<hoy && new Date(r.fecha_expiracion).getFullYear()<2090).length;
+            document.getElementById('stat_total').textContent     = total;
+            document.getElementById('stat_activos').textContent   = activos;
+            document.getElementById('stat_expirados').textContent = expirados;
+        } catch(e) {}
+    }
+
+    // ══════════════════════════════════════════════════
+    // CONFIG — Paquetes y variables
+    // ══════════════════════════════════════════════════
+
+    const CFG_KEY = 'pensiondo_config';
+
+    const CFG_DEFAULT = {
+        paquetes: [
+            { dias: 3,    label: 'Demo gratuita',   precio: 0   },
+            { dias: 7,    label: '7 días acceso',   precio: 249 },
+            { dias: 15,   label: '15 días acceso',  precio: 349 },
+            { dias: 30,   label: '30 días acceso',  precio: 499 },
+            { dias: 9999, label: 'Sin límite',       precio: 0   },
+        ],
+        uma:       117.31,
+        pmg:       10636.54,
+        inflacion: 4.50,
+        recargo:   1.47
+    };
+
+    function cfgCargar() {
+        try {
+            const saved = localStorage.getItem(CFG_KEY);
+            return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(CFG_DEFAULT));
+        } catch { return JSON.parse(JSON.stringify(CFG_DEFAULT)); }
+    }
+
+    function cfgGuardar() {
+        const cfg = cfgCargar();
+
+        // Leer paquetes del DOM
+        cfg.paquetes = [];
+        document.querySelectorAll('.cfg-row').forEach(row => {
+            const dias   = parseInt(row.querySelector('.cfg-dias').value) || 0;
+            const label  = row.querySelector('.cfg-label').value.trim();
+            const precio = parseInt(row.querySelector('.cfg-precio').value) || 0;
+            if (dias > 0 && label) cfg.paquetes.push({ dias, label, precio });
+        });
+
+        localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+
+        // Actualizar select de días en crear código
+        cfgAplicarSelect(cfg);
+
+        const msg = document.getElementById('cfg_msg');
+        msg.textContent = '✅ Configuración guardada correctamente';
+        msg.style.cssText = 'display:block;background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.4);color:#22c55e;padding:0.5rem 1rem;border-radius:6px;font-size:0.82rem;font-weight:600;';
+        setTimeout(() => msg.style.display='none', 3000);
+    }
+
+    function cfgAplicarSelect(cfg) {
+        const sel = document.getElementById('adm_dias');
+        if (!sel) return;
+        sel.innerHTML = '';
+        cfg.paquetes.forEach((p, i) => {
+            const opt = document.createElement('option');
+            opt.value = p.dias;
+            opt.textContent = p.dias === 9999
+                ? `${p.label}${p.precio>0?' — $'+p.precio+' MXN':''}`
+                : `${p.dias} días — ${p.precio>0?'$'+p.precio+' MXN':p.label}`;
+            if (i===1) opt.selected = true; // default: segundo paquete
+            sel.appendChild(opt);
+        });
+    }
+
+    function cfgRenderPaquetes(cfg) {
+        const cont = document.getElementById('cfg_paquetes');
+        if (!cont) return;
+        cont.innerHTML = '';
+        cfg.paquetes.forEach((p, i) => {
+            const row = document.createElement('div');
+            row.className = 'cfg-row';
+            row.style.cssText = 'display:grid;grid-template-columns:70px 1fr 100px 32px;gap:0.4rem;align-items:center;';
+            row.innerHTML = `
+                <div>
+                    <input type="number" class="cfg-dias" value="${p.dias===9999?'':p.dias}" placeholder="días"
+                        style="width:100%;background:#071020;border:1px solid rgba(207,181,59,0.2);border-radius:5px;padding:0.4rem;color:#fff;font-size:0.8rem;font-family:'DM Sans',sans-serif;box-sizing:border-box;">
+                    <div style="font-size:0.6rem;color:rgba(255,255,255,0.3);text-align:center;">días</div>
+                </div>
+                <input type="text" class="cfg-label" value="${p.label}" placeholder="Nombre del paquete"
+                    style="width:100%;background:#071020;border:1px solid rgba(207,181,59,0.2);border-radius:5px;padding:0.4rem 0.5rem;color:#fff;font-size:0.8rem;font-family:'DM Sans',sans-serif;box-sizing:border-box;">
+                <div>
+                    <input type="number" class="cfg-precio" value="${p.precio}" placeholder="precio"
+                        style="width:100%;background:#071020;border:1px solid rgba(207,181,59,0.2);border-radius:5px;padding:0.4rem;color:#fff;font-size:0.8rem;font-family:'DM Sans',sans-serif;box-sizing:border-box;">
+                    <div style="font-size:0.6rem;color:rgba(255,255,255,0.3);text-align:center;">$ MXN</div>
+                </div>
+                <button onclick="this.closest('.cfg-row').remove()"
+                    style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);border-radius:5px;cursor:pointer;font-size:0.9rem;padding:0.3rem;height:32px;">✕</button>`;
+            cont.appendChild(row);
+        });
+    }
+
+    function cfgAgregarPaquete() {
+        const cfg = cfgCargar();
+        cfg.paquetes.push({ dias: 30, label: 'Nuevo paquete', precio: 399 });
+        cfgRenderPaquetes(cfg);
+    }
+
+    function cfgInicializar() {
+        const cfg = cfgCargar();
+        cfgRenderPaquetes(cfg);
+        cfgAplicarSelect(cfg);
+    }
+
+    // ══════════════════════════════════════════════════
+    // Mostrar botón admin si es MASTER
+    function mostrarBotonAdmin() {
+        const codigo = sessionStorage.getItem('ley73_codigo');
+        if (codigo && CODIGOS_MAESTROS.some(m => m.codigo === codigo)) {
+            const fab = document.getElementById('admin-fab');
+            if (fab) fab.style.display = 'block';
+        }
+    }
+    </script>
+
+</body>
+</html>
