@@ -2837,6 +2837,8 @@ function v_sincronizarEstatusAMod40() {
         // Si está vacía → dejar para que usuario la ingrese manualmente
         if (fechaBaja) {
             m40FechaBajaEl.value = fechaBaja;
+            // ⚠️ IMPORTANTE: Ejecutar actualización después de copiar
+            m40_actualizarInicioRetro();
         }
         // IMPORTANTE: No hacer nada si fechaBaja está vacía
         // Porque el usuario podría estar ingresando la fecha en Paso 2
