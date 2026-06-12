@@ -1460,8 +1460,11 @@ El sistema detectará:
                 <!-- RENGLÓN 2: FECHA DE BAJA — solo visible si trabajador está dado de baja -->
                 <div id="m40_bloque_fecha_baja" style="display:none;margin-bottom:1rem;background:rgba(146,64,14,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:0.7rem 0.9rem;">
                     <label style="font-size:0.75rem;color:#fbbf24;display:block;margin-bottom:4px;font-weight:700;">📅 Fecha de Baja en el IMSS</label>
-                    <input type="date" id="m40_fecha_baja" style="width:100%;background:#0d1526;border:1px solid rgba(245,158,11,0.4);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;" onchange="m40_actualizar(); m40_mostrarAlertaBaja(); m40_actualizarInicioRetro();">
-                    <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px;">Copiado automáticamente desde Datos Laborales · Puedes ajustar si es diferente</div>
+                    <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
+                        <input type="date" id="m40_fecha_baja" style="flex:1;background:#0d1526;border:1px solid rgba(245,158,11,0.4);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;" onchange="m40_actualizar(); m40_mostrarAlertaBaja(); m40_actualizarInicioRetro();">
+                        <button type="button" id="btn_copiar_fecha_baja" style="background:#f59e0b;color:#000;border:none;border-radius:6px;padding:0.5rem 0.9rem;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;" onclick="m40_copiarFechaBaja();">📋 Copiar</button>
+                    </div>
+                    <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);">Haz clic en "Copiar" para traer la fecha de baja desde Datos Laborales</div>
                 </div>
 
                 <!-- FECHA INICIO MOD40 — info retroactivo + campos ocultos compatibilidad -->
@@ -2860,6 +2863,47 @@ function v_sincronizarEstatusAMod40() {
         m40_calcularSemanasActivoHastaMod40();
         m40_mostrarAlertaBaja();
         m40_recalcularSemanasTotal();
+    }
+}
+
+/**
+ * m40_copiarFechaBaja()
+ * Función SIMPLE: copia la fecha de baja desde Datos Laborales (Paso 2) a Paso 3 (Mod40)
+ * Se ejecuta cuando el usuario hace clic en botón "Copiar"
+ */
+function m40_copiarFechaBaja() {
+    const v_fecha_baja_input = document.getElementById('v_fecha_baja');
+    const m40_fecha_baja_input = document.getElementById('m40_fecha_baja');
+    
+    if (!v_fecha_baja_input || !m40_fecha_baja_input) {
+        console.warn('[m40_copiarFechaBaja] Campos no encontrados');
+        return;
+    }
+    
+    const fechaBajaValue = v_fecha_baja_input.value;
+    
+    if (!fechaBajaValue) {
+        alert('⚠️ Por favor completa la fecha de baja en Datos Laborales primero');
+        return;
+    }
+    
+    // Copiar fecha
+    m40_fecha_baja_input.value = fechaBajaValue;
+    
+    // Ejecutar actualización
+    m40_actualizar();
+    m40_mostrarAlertaBaja();
+    m40_actualizarInicioRetro();
+    
+    // Visual feedback: cambiar color botón brevemente
+    const btn = document.getElementById('btn_copiar_fecha_baja');
+    if (btn) {
+        btn.style.background = '#10b981';
+        btn.textContent = '✅ Copiado';
+        setTimeout(() => {
+            btn.style.background = '#f59e0b';
+            btn.textContent = '📋 Copiar';
+        }, 1500);
     }
 }
 
