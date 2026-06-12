@@ -1,0 +1,40 @@
+name: Auto-Deploy a Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      - name: Verificar cambios
+        run: |
+          echo "✅ Repositorio clonado"
+          echo "📝 Último commit:"
+          git log -1 --pretty=format:"%h - %s"
+
+      - name: Triggear deploy en Cloudflare Pages
+        run: |
+          RESPONSE=$(curl -X POST \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/pages/projects/${{ secrets.CLOUDFLARE_PROJECT_NAME }}/deployments" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{}')
+          
+          echo "📡 Respuesta de Cloudflare:"
+          echo "$RESPONSE"
+          
+          if echo "$RESPONSE" | grep -q '"success":true'; then
+            echo "✅ DEPLOY EXITOSO"
+            echo "🌐 Sitio: https://pensionley73.com"
+            echo "⏱️  Actualización en 30-60 segundos..."
+          else
+            echo "⚠️ Verificando estado del deploy..."
+            echo "$RESPONSE"
+          fi
