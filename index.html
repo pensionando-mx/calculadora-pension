@@ -8,7 +8,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://www.google-analytics.com;">
     <!-- Google Analytics -->
-    <script async="" src="./Profesional_files/js"></script>
+    <!-- Google Analytics script URL no disponible -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -54,9 +54,24 @@
 
         body {
             font-family: 'DM Sans', sans-serif;
-            background: #f5f8f7;
+            background: linear-gradient(160deg, #c8e6c9 0%, #a5d6a7 40%, #81c784 70%, #c8e6c9 100%);
+            background-attachment: fixed;
             color: var(--pp-black);
             overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Grid decorativo global */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* =============================================
@@ -65,7 +80,7 @@
         #pantalla-acceso {
             position: fixed;
             inset: 0;
-            background: linear-gradient(135deg, #0f3d30 0%, #1e6b5a 60%, #0f3d30 100%);
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 60%, #c8e6c9 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -184,7 +199,7 @@
         }
         .btn-acceder:hover:not(:disabled) {
             transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(0,33,71,0.35);
+            box-shadow: 0 8px 24px rgba(30,107,90,0.35);
         }
         .btn-acceder:disabled {
             opacity: 0.7;
@@ -195,8 +210,8 @@
         .btn-acceder .spinner {
             display: none;
             width: 16px; height: 16px;
-            border: 2px solid rgba(30,107,90,0.25);
-            border-top-color: var(--oro);
+            border: 2px solid rgba(30,107,90,0.2);
+            border-top-color: var(--pp-dark);
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
             margin: 0 auto;
@@ -278,12 +293,12 @@
         /* =============================================
            APP PRINCIPAL (oculta hasta validar)
         ============================================= */
-        #app-principal { display: none; }
+        #app-principal { display: none; position: relative; z-index: 1; }
 
         /* NAV */
         nav {
-            background: #ffffff;
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(12px);
             padding: 1rem 2.5rem;
             display: flex;
             justify-content: space-between;
@@ -292,7 +307,7 @@
             top: 0;
             z-index: 100;
             border-bottom: 2px solid var(--pp-dark);
-            box-shadow: 0 2px 16px rgba(30,107,90,0.12);
+            box-shadow: 0 2px 20px rgba(15,61,48,0.25);
         }
         .logo {
             font-family: 'Cormorant Garamond', serif;
@@ -320,12 +335,12 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(106,173,94,0.15);
-            border: 1px solid rgba(106,173,94,0.35);
+            background: rgba(30,107,90,0.12);
+            border: 1px solid rgba(30,107,90,0.3);
             border-radius: 2rem;
             padding: 0.25rem 0.75rem;
             font-size: 0.72rem;
-            color: #4ade80;
+            color: var(--pp-dark);
             font-weight: 600;
         }
         .sesion-dot {
@@ -352,7 +367,7 @@
 
         /* HERO */
         /* CALCULADORA */
-        .calc-wrapper { background: #f5f8f7; padding: 3rem 1.5rem 5rem; }
+        .calc-wrapper { background: transparent; padding: 3rem 1.5rem 5rem; position: relative; z-index: 1; }
         .section-label { max-width: 1400px; margin: 0 auto 1.5rem; }
         .section-label-inner { display: flex; align-items: center; gap: 1rem; }
         .step-pill {
@@ -360,8 +375,8 @@
             font-size: 0.7rem; font-weight: 800; padding: 0.3rem 0.8rem;
             border-radius: 3px; text-transform: uppercase; letter-spacing: 1px; flex-shrink: 0;
         }
-        .step-title { color: var(--pp-dark); font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; }
-        .step-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(30,107,90,0.35), transparent); }
+        .step-title { color: #ffffff; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .step-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(255,255,255,0.3), transparent); }
 
         .layout {
             display: grid; grid-template-columns: 1fr 1.5fr;
@@ -369,7 +384,7 @@
         }
         .panel {
             background: #ffffff; padding: 28px; border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(30,107,90,0.1); border-top: 4px solid var(--pp-dark);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18); border-top: 4px solid var(--pp-dark);
         }
         .panel h3 {
             color: var(--pp-dark); margin-top: 0;
@@ -379,7 +394,7 @@
 
         textarea {
             width: 100%; height: 350px; padding: 15px;
-            border: 2px dashed rgba(0,33,71,0.2); border-radius: 8px;
+            border: 2px dashed rgba(30,107,90,0.2); border-radius: 8px;
             font-family: monospace; font-size: 13px; resize: vertical;
             background: #fff; color: #000; margin-bottom: 15px; transition: border-color 0.2s;
         }
@@ -416,13 +431,13 @@
 
         .transfer-wrap { max-width: 1400px; margin: 24px auto 0; text-align: center; }
         .btn-transfer {
-            background: var(--pp-dark);
+            background: #4caf50;
             color: #ffffff; padding: 16px 52px; font-size: 16px; font-weight: 700;
             border: none; border-radius: 10px; cursor: pointer;
-            box-shadow: 0 8px 28px rgba(30,107,90,0.35);
+            box-shadow: 0 8px 28px rgba(76,175,80,0.35);
             letter-spacing: 0.5px; text-transform: uppercase; transition: all 0.25s;
         }
-        .btn-transfer:hover { transform: translateY(-2px); background: var(--pp-mid); box-shadow: 0 14px 40px rgba(30,107,90,0.4); }
+        .btn-transfer:hover { transform: translateY(-2px); background: #66bb6a; box-shadow: 0 14px 40px rgba(255,152,0,0.5); }
         .transfer-note { color: rgba(30,107,90,0.6); font-size: 12px; margin-top: 8px; }
 
         .sbc-badge {
@@ -434,7 +449,7 @@
         .contenedor {
             max-width: 1400px; margin: 0 auto; background: #ffffff;
             padding: 36px; border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(30,107,90,0.1); border-top: 4px solid var(--pp-dark);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18); border-top: 4px solid var(--pp-dark);
         }
         .contenedor h1 {
             color: var(--pp-dark); text-align: center;
@@ -449,7 +464,7 @@
         }
         .seccion-captura h3 {
             margin-top: 0; color: var(--pp-dark);
-            border-bottom: 1px solid rgba(0,33,71,0.1);
+            border-bottom: 1px solid rgba(30,107,90,0.12);
             padding-bottom: 8px; margin-bottom: 14px;
             font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
         }
@@ -502,7 +517,7 @@
         .alerta-exclusion { color: #c0392b; font-size: 11px; font-weight: 600; margin-top: 5px; display: none; }
 
         .paso-divisor-wrap { max-width: 1400px; margin: 2.5rem auto; padding: 0 1.5rem; }
-        .paso-divisor { border: none; border-top: 1px dashed rgba(30,107,90,0.2); }
+        .paso-divisor { border: none; border-top: 1px dashed rgba(255,255,255,0.2); }
 
         #transfer-confirm {
             display: none; margin-top: 14px; padding: 12px 16px;
@@ -511,8 +526,9 @@
         }
 
         footer {
-            background: var(--pp-dark);
+            background: rgba(10,35,26,0.92);
             border-top: 1px solid rgba(255,255,255,0.1);
+            position: relative; z-index: 1;
             padding: 2rem; text-align: center;
         }
         footer p { color: rgba(255,255,255,0.75); font-size: 0.78rem; line-height: 1.7; max-width: 640px; margin: 0 auto; }
@@ -659,7 +675,265 @@
             line-height: 1.5;
         }
         .modal-nota-imss strong { color: #78350f; }
+    
+        /* ════════════════════════════════════════════════════════════════ */
+        /* NUEVO DISEÑO - Resultado Pensión */
+        /* ════════════════════════════════════════════════════════════════ */
+        
+        .resultado-pension-grande {
+            background: #f0f7f5;
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin: 2rem 0;
+            border-left: 6px solid var(--pp-dark);
+            box-shadow: 0 4px 12px rgba(30,107,90,0.08);
+        }
+        
+        .resultado-pension-label {
+            font-size: 0.85rem;
+            color: rgba(0,0,0,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+        
+        .resultado-pension-valor {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--pp-dark);
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        
+        .resultado-pension-nota {
+            font-size: 0.9rem;
+            color: rgba(0,0,0,0.7);
+        }
+        
+        /* Cards de información */
+        .info-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .info-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .info-card:hover {
+            box-shadow: 0 4px 16px rgba(30,107,90,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .info-card-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+        
+        .info-card-valor {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--pp-dark);
+        }
+        
+        .info-card-sublabel {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+        
+        /* Comparativa 2 columnas Modalidad 40 */
+        .comparativa-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .opcion-card {
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid;
+        }
+        
+        .opcion-a {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+        
+        .opcion-b {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        
+        .opcion-titulo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+        
+        .opcion-a .opcion-titulo {
+            color: #ff6f00;
+        }
+        
+        .opcion-b .opcion-titulo {
+            color: #2e7d32;
+        }
+        
+        .opcion-pension-box {
+            background: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .opcion-pension-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .opcion-pension-valor {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+        
+        .opcion-a .opcion-pension-valor {
+            color: #ff6f00;
+        }
+        
+        .opcion-b .opcion-pension-valor {
+            color: #2e7d32;
+        }
+        
+        .opcion-detalles {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .opcion-detalles div {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Veredicto destacado */
+        .veredicto-box {
+            background: #4caf50;
+            border-radius: 16px;
+            padding: 2.5rem;
+            color: #fff;
+            margin: 2rem 0;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(46,125,50,0.3);
+        }
+        
+        .veredicto-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .veredicto-titulo {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .veredicto-diferencia {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .veredicto-nota {
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+        
+        /* Tabla esperanza de vida */
+        .esperanza-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .esperanza-tabla th {
+            background: var(--pp-dark);
+            color: #fff;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+        }
+        
+        .esperanza-tabla th:not(:first-child) {
+            text-align: right;
+        }
+        
+        .esperanza-tabla tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .esperanza-tabla td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .esperanza-tabla td:not(:first-child) {
+            text-align: right;
+        }
+        
+        .veredicto-cell {
+            font-weight: 700;
+        }
+        
+        .veredicto-cell.mejor {
+            color: #4caf50;
+        }
+        
+        .veredicto-cell.peor {
+            color: #ff6f00;
+        }
+
+    
+        @keyframes toast-animation {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
     </style>
+
+                <!-- ELEMENTOS OCULTOS PARA SINCRONIZACIÓN DE PASO 2 -->
+                <div style="display:none;">
+                    <div id="out_cuantia_basica">$0.00</div>
+                    <div id="out_incrementos">$0.00</div>
+                    <div id="out_ayuda">$0.00</div>
+                    <div id="out_decreto">$0.00</div>
+                    <div id="out_subtotal">$0.00</div>
+                </div>
+
 </head>
 <body>
 
@@ -716,7 +990,7 @@
 
         <!-- ══ PASO 1: PAGO ══ -->
         <div id="solicitud-paso1">
-            <div style="background:#0d1526;border:1.5px solid rgba(30,107,90,0.25);border-radius:14px;padding:1.5rem;margin-bottom:1rem;">
+            <div style="background:rgba(10,40,30,0.95);border:1.5px solid rgba(30,107,90,0.35);border-radius:14px;padding:1.5rem;margin-bottom:1rem;">
 
                 <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;">
                     <div style="background:#ffffff;color:var(--pp-dark);font-size:0.7rem;font-weight:800;padding:0.25rem 0.7rem;border-radius:20px;">PASO 1</div>
@@ -760,7 +1034,7 @@
                     📸 <strong style="color:#22c55e;">Importante:</strong> Guarda tu comprobante de pago. Lo enviarás por WhatsApp junto con tu solicitud en el siguiente paso.
                 </div>
 
-                <button onclick="irPaso2Solicitud()" style="width:100%;margin-top:1rem;padding:0.9rem;background:linear-gradient(135deg,var(--oro),#2d8a72);color:var(--oxford);border:none;border-radius:8px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:1rem;font-weight:800;cursor:pointer;">
+                <button onclick="irPaso2Solicitud()" style="width:100%;margin-top:1rem;padding:0.9rem;background: #4caf50;color:var(--oxford);border:none;border-radius:8px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:1rem;font-weight:800;cursor:pointer;">
                     Ya pagué → Continuar
                 </button>
 
@@ -772,7 +1046,7 @@
 
         <!-- ══ PASO 2: DATOS ══ -->
         <div id="solicitud-paso2" style="display:none;">
-            <div style="background:#0d1526;border:1.5px solid rgba(30,107,90,0.25);border-radius:14px;padding:1.5rem;">
+            <div style="background:rgba(10,40,30,0.95);border:1.5px solid rgba(30,107,90,0.35);border-radius:14px;padding:1.5rem;">
 
                 <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1.2rem;">
                     <div style="background:#ffffff;color:var(--pp-dark);font-size:0.7rem;font-weight:800;padding:0.25rem 0.7rem;border-radius:20px;">PASO 2</div>
@@ -823,7 +1097,7 @@
 
         <!-- ══ CONFIRMACIÓN ══ -->
         <div id="solicitud-confirmacion" style="display:none;">
-            <div style="background:#0d1526;border:1.5px solid rgba(34,197,94,0.4);border-radius:14px;padding:2rem;text-align:center;">
+            <div style="background:rgba(10,40,30,0.95);border:1.5px solid rgba(34,197,94,0.4);border-radius:14px;padding:2rem;text-align:center;">
                 <div style="font-size:3rem;margin-bottom:0.8rem;">✅</div>
                 <div style="color:#a8d5a2;font-size:1.2rem;font-weight:800;margin-bottom:0.5rem;">¡Solicitud enviada!</div>
                 <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;line-height:1.6;margin-bottom:1.5rem;">
@@ -834,7 +1108,7 @@
                 <div style="background:rgba(30,107,90,0.08);border:1px solid rgba(30,107,90,0.2);border-radius:8px;padding:0.9rem;margin-bottom:1.2rem;font-size:0.78rem;color:rgba(255,255,255,0.5);line-height:1.6;">
                     📌 Una vez que recibas tu clave, regresa aquí e ingrésala en el campo <strong style="color:#a8d5a2;">"Clave de activación"</strong>
                 </div>
-                <button onclick="volverAlLogin()" style="width:100%;padding:0.85rem;background:linear-gradient(135deg,var(--oro),#2d8a72);color:var(--oxford);border:none;border-radius:8px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:0.95rem;font-weight:800;cursor:pointer;">
+                <button onclick="volverAlLogin()" style="width:100%;padding:0.85rem;background: #4caf50;color:var(--oxford);border:none;border-radius:8px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:0.95rem;font-weight:800;cursor:pointer;">
                     Volver al login → ingresar clave
                 </button>
             </div>
@@ -855,7 +1129,7 @@
         <div style="display:flex;flex-direction:column;align-items:center;line-height:1.15;">
             <div class="logo" style="font-size:3rem;letter-spacing:-0.5px;">Pensión<span>Ley73</span></div>
             <div style="font-size:0.85rem;color:var(--pp-mid);letter-spacing:0.6px;margin-top:4px;font-style:italic;font-weight:500;">En 1 minuto · Calcula tu Pensión con precisión legal</div>
-            <div style="font-size:0.65rem;color:rgba(30,107,90,0.5);letter-spacing:0.5px;margin-top:3px;">© 2026 Pensionando a México · Todos los derechos reservados</div>
+
         </div>
         <!-- BADGES + SESIÓN -->
         <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;justify-content:center;margin-top:0.5rem;">
@@ -900,7 +1174,7 @@ El sistema detectará:
                 <!-- AVISO CONFIGURACIÓN CHROME -->
                 <div style="display:flex;align-items:flex-start;gap:0.7rem;background:#e8f4f1;border:1.5px solid var(--pp-dark);border-radius:8px;padding:0.8rem 1rem;margin-bottom:14px;font-size:0.78rem;line-height:1.6;">
                     <span style="font-size:1.2rem;margin-top:1px;">⚙️</span>
-                    <span style="color:#ffffff;">
+                    <span style="color:#1a1a1a;">
                         <strong style="color:#1e6b5a;font-size:0.82rem;">Fechas en formato DD/MM/AAAA</strong> — igual que el reporte IMSS.<br>
                         <span style="color:#333333;">Si tu navegador muestra MM/DD/AAAA, configura Chrome:</span>
                         <strong style="color:#1a1a1a;">Configuración → Idiomas → Agregar "Español (México)" → moverlo al inicio → Reiniciar Chrome</strong>
@@ -927,8 +1201,8 @@ El sistema detectará:
                     </tbody>
                 </table>
                 <!-- Banner toggle filas irrelevantes -->
-                <div id="sbc-toggle-banner" style="display:none;margin:8px 0;background:#f0f4ff;border:1px solid #c8d8ee;border-radius:8px;padding:10px 14px;display:none;align-items:center;justify-content:space-between;gap:12px;">
-                    <div style="font-size:12px;color:#334;line-height:1.5;">
+                <div id="sbc-toggle-banner" style="display:none;margin:8px 0;background:#e8f4f1;border:1px solid rgba(30,107,90,0.25);border-radius:8px;padding:10px 14px;display:none;align-items:center;justify-content:space-between;gap:12px;">
+                    <div style="font-size:12px;color:#1a2a1a;line-height:1.5;">
                         📊 <strong id="sbc-filas-relevantes">0</strong> filas usadas en el cálculo (250 semanas)
                         · <span id="sbc-filas-ocultas" style="color:#888;"></span>
                     </div>
@@ -953,8 +1227,7 @@ El sistema detectará:
         </div>
 
         <div class="transfer-wrap">
-            <button class="btn-transfer" onclick="transferirSBC()">✦ Usar este SBC en la Calculadora de Pensión ↓</button>
-            <div class="transfer-note">El salario se copiará automáticamente al campo de abajo</div>
+            <button class="btn-transfer" onclick="transferirSBC()">✦ Usar este SBC en la Calculadora de Pensión ↓<br><small style="font-size:0.75rem;opacity:0.9;margin-top:0.3rem;display:block;">El salario se copiará automáticamente al campo de abajo</small></button>
         </div>
 
         <div class="paso-divisor-wrap"><hr class="paso-divisor"></div>
@@ -1148,7 +1421,7 @@ El sistema detectará:
                             ✅ Activo / Cotizando
                         </button>
                         <button type="button" id="v_btn_baja" onclick="v_setEstatus('baja')"
-                            style="background:#fff;color:#92400e;border:2px solid #f59e0b;padding:0.55rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s;">
+                            style="background:#ff9800;color:#fff;font-weight:700;color:#92400e;border:2px solid #f59e0b;padding:0.55rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.2s;">
                             🔴 Dado de Baja
                         </button>
                     </div>
@@ -1173,7 +1446,7 @@ El sistema detectará:
             </div>
 
             <!-- TABLA ASIGNACIONES FAMILIARES -->
-            <div class="explicacion-legal" style="padding:0;overflow:hidden;border-radius:10px;border:1px solid #d1d9e6;">
+            <div class="explicacion-legal" style="padding:0;overflow:hidden;border-radius:10px;border:1px solid rgba(30,107,90,0.2);">
                 <div style="background:var(--pp-dark);color:#fff;padding:1rem 1.2rem;">
                     <div style="font-family:&#39;Cormorant Garamond&#39;,serif;font-size:1.1rem;font-weight:700;margin-bottom:0.3rem;">Asignaciones Familiares</div>
                     <div style="font-size:0.78rem;color:rgba(255,255,255,0.65);line-height:1.5;">Son montos adicionales que se suman a la pensión base — <em>Art. 164 Ley 73 SS · Arts. 138 al 141 Ley Vigente SS</em></div>
@@ -1266,22 +1539,22 @@ El sistema detectará:
 
                 <!-- ══ CARDS DE DATOS CLAVE ══ -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem;">
-                    <div style="background:rgba(0,33,71,0.5);border:1px solid rgba(30,107,90,0.2);border-radius:10px;padding:0.8rem 1rem;">
+                    <div style="background:rgba(10,50,38,0.6);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0.8rem 1rem;">
                         <div style="font-size:0.65rem;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;">Salario × UMA</div>
                         <div id="out_vuma" style="font-size:1.2rem;font-weight:800;color:var(--oro);">0</div>
                         <div id="out_uma_label" style="font-size:0.65rem;color:rgba(255,255,255,0.55);">veces UMA 2026</div>
                     </div>
-                    <div style="background:rgba(0,33,71,0.5);border:1px solid rgba(30,107,90,0.2);border-radius:10px;padding:0.8rem 1rem;">
+                    <div style="background:rgba(10,50,38,0.6);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0.8rem 1rem;">
                         <div style="font-size:0.65rem;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;">Años Excedentes</div>
                         <div id="out_anios" style="font-size:1.2rem;font-weight:800;color:var(--oro);">0</div>
                         <div style="font-size:0.65rem;color:rgba(255,255,255,0.55);">regla semestral IMSS</div>
                     </div>
-                    <div style="background:rgba(0,33,71,0.5);border:1px solid rgba(30,107,90,0.2);border-radius:10px;padding:0.8rem 1rem;">
+                    <div style="background:rgba(10,50,38,0.6);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0.8rem 1rem;">
                         <div id="out_pmg_label" style="font-size:0.65rem;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;">PMG 2026</div>
                         <div id="out_pmg_valor" style="font-size:1.1rem;font-weight:800;color:#60a5fa;">$10,636.54</div>
                         <div style="font-size:0.65rem;color:rgba(255,255,255,0.55);">piso mínimo garantizado</div>
                     </div>
-                    <div style="background:rgba(0,33,71,0.5);border:1px solid rgba(30,107,90,0.2);border-radius:10px;padding:0.8rem 1rem;">
+                    <div style="background:rgba(10,50,38,0.6);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0.8rem 1rem;">
                         <div style="font-size:0.65rem;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;">ISR Gravable</div>
                         <div id="out_isr_gravable" style="font-size:1.1rem;font-weight:800;color:#fb923c;">$ 0.00</div>
                         <div style="font-size:0.65rem;color:rgba(255,255,255,0.5);">excedente 15 UMAs</div>
@@ -1372,26 +1645,7 @@ El sistema detectará:
     </div><!-- /calc-wrapper -->
 
 
-    <footer>
-        <p>
-            <strong>© 2026 Pensionando a México — Todos los derechos reservados</strong><br>
-            Prohibida su reproducción total o parcial sin autorización expresa.<br><br>
-            <strong>Calculadora Pensión Ley 73</strong> · Basada en la Ley del Seguro Social 1973 y tablas oficiales IMSS 2026.<br>
-            Los resultados son estimaciones informativas. Consulte siempre con un especialista antes de tomar decisiones.<br>
-            UMA 2026: $117.31 &nbsp;·&nbsp; PMG 2026: $10,636.54 &nbsp;·&nbsp; Exención ISR: 15 UMA mensual
-        </p>
-        <div style="border-top:1px solid rgba(255,255,255,0.2);margin-top:1.2rem;padding-top:1.2rem;font-size:0.72rem;color:rgba(255,255,255,0.65);line-height:1.8;max-width:700px;margin-left:auto;margin-right:auto;">
-            <strong style="color:rgba(30,107,90,0.6);">🔒 Aviso de Privacidad y Tratamiento de Datos</strong><br>
-            Esta herramienta procesa los datos personales del trabajador (nombre, NSS, CURP, historial de salarios y semanas cotizadas) 
-            <strong style="color:#555555;">exclusivamente en el navegador del asesor autorizado</strong>. 
-            Ningún dato personal es transmitido, almacenado ni procesado en servidores externos. 
-            Los reportes se generan de forma local y se comparten directamente con el trabajador a través de los canales que el asesor determine. 
-            Esta plataforma no comparte, vende ni cede información personal a terceros bajo ninguna circunstancia. 
-            El acceso está restringido a asesores con código de activación vigente. 
-            En cumplimiento con la <strong style="color:#555555;">Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP)</strong>.<br><br>
-            <strong style="color:rgba(30,107,90,0.6);">Pensionando a México</strong> · © 2026 · Todos los derechos reservados.
-        </div>
-    </footer>
+
 
 </div><!-- /app-principal -->
 
@@ -3170,12 +3424,6 @@ function enviarWhatsApp() {
 // [mod40 removed - enviarWhatsAppM40]
 
 
-
-
-
-
-
-
 </script>
 
 
@@ -3183,7 +3431,7 @@ function enviarWhatsApp() {
          PANEL ADMINISTRADOR — solo visible para administradores
     ══════════════════════════════════════════════════════ -->
     <div id="admin-panel" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;backdrop-filter:blur(6px);">
-        <div style="max-width:780px;margin:2rem auto;background:#0d1526;border-radius:16px;border:1px solid rgba(30,107,90,0.25);overflow:hidden;">
+        <div style="max-width:780px;margin:2rem auto;background:rgba(10,40,30,0.97);border-radius:16px;border:1px solid rgba(30,107,90,0.25);overflow:hidden;">
 
             <!-- Header -->
             <div style="background:var(--pp-dark);padding:1.2rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid rgba(255,255,255,0.15);">
@@ -3529,572 +3777,760 @@ function enviarWhatsApp() {
             if (fab) fab.style.display = 'block';
         }
     }
+
+    // ══════════════════════════════════════════════════
+    // FUNCIONES <!-- ══════════════════════════════════════════════════════
+         PANEL ADMINISTRADOR — solo visible para administradores
+    ══════════════════════════════════════════════════════ -->
+    <div id="admin-panel" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9999;overflow-y:auto;backdrop-filter:blur(6px);">
+        <div style="max-width:780px;margin:2rem auto;background:#0d1526;border-radius:16px;border:1px solid rgba(207,181,59,0.3);overflow:hidden;">
+
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#002147,#001530);padding:1.2rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid rgba(207,181,59,0.3);">
+                <div>
+                    <div style="color:var(--oro);font-size:1.2rem;font-weight:800;">Panel Administrador</div>
+                    <div style="color:rgba(255,255,255,0.4);font-size:0.75rem;margin-top:2px;">Pensionando a México · Solo visible para administradores</div>
+                </div>
+                <button onclick="cerrarAdmin()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);color:#ef4444;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-family:&#39;DM Sans&#39;,sans-serif;font-size:0.8rem;font-weight:700;">✕ Cerrar</button>
+            </div>
+
+            <div style="padding:1.5rem;">
+
+                <!-- TABS — solo lectura -->
+                <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;">
+                    <button onclick="adminTab(&#39;lista&#39;)" id="atab_lista" style="flex:1;padding:0.5rem;border-radius:6px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:0.8rem;font-weight:800;cursor:pointer;background:var(--oro);color:var(--oxford);border:none;">📋 Códigos</button>
+                    <button onclick="adminTab(&#39;usuarios&#39;)" id="atab_usuarios" style="flex:1;padding:0.5rem;border-radius:6px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);">👥 Usuarios</button>
+                    <button onclick="adminTab(&#39;stats&#39;)" id="atab_stats" style="flex:1;padding:0.5rem;border-radius:6px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:0.8rem;font-weight:700;cursor:pointer;background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);">📊 Stats</button>
+                </div>
+
+                <!-- TAB: LISTA DE CÓDIGOS -->
+                <div id="admin_lista" style="display:none;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                        <span style="color:rgba(255,255,255,0.5);font-size:0.8rem;" id="adm_total_codigos">Cargando...</span>
+                        <button onclick="adminCargarCodigos()" style="background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);padding:0.35rem 0.8rem;border-radius:6px;cursor:pointer;font-family:&#39;DM Sans&#39;,sans-serif;font-size:0.75rem;font-weight:700;">↻ Actualizar</button>
+                    </div>
+                    <div id="adm_tabla_codigos" style="overflow-x:auto;">
+                        <div style="text-align:center;padding:2rem;color:rgba(255,255,255,0.3);">Haz clic en "Actualizar" para cargar</div>
+                    </div>
+                </div>
+
+                <!-- TAB: ESTADÍSTICAS -->
+                <div id="admin_stats" style="display:none;">
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin-bottom:1rem;" id="adm_stats_cards">
+                        <div style="background:rgba(207,181,59,0.08);border:1px solid rgba(207,181,59,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:800;color:var(--oro);" id="stat_total">—</div>
+                            <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Total códigos</div>
+                        </div>
+                        <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:800;color:#22c55e;" id="stat_activos">—</div>
+                            <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Activos/vigentes</div>
+                        </div>
+                        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:800;color:#ef4444;" id="stat_expirados">—</div>
+                            <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Expirados</div>
+                        </div>
+                        <div style="background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                            <div style="font-size:1.8rem;font-weight:800;color:#63b3ed;">—</div>
+                            <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Cargando...</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center;color:rgba(255,255,255,0.3);font-size:0.72rem;padding:0.5rem;">⏳ Cargando estadísticas...</div>
+                </div>
+
+                <!-- TAB USUARIOS -->
+                <div id="admin_usuarios" style="display:none;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                        <div style="color:rgba(255,255,255,0.6);font-size:0.75rem;">Usuarios que han iniciado sesión con su código de acceso.</div>
+                        <button onclick="cargarUsuariosAdmin()" style="background:rgba(207,181,59,0.12);color:var(--oro);border:1px solid rgba(207,181,59,0.3);padding:0.35rem 0.8rem;border-radius:6px;font-family:&#39;DM Sans&#39;,sans-serif;font-size:0.75rem;font-weight:700;cursor:pointer;">↺ Actualizar</button>
+                    </div>
+                    <div id="admin_usuarios_lista" style="display:flex;flex-direction:column;gap:0.5rem;max-height:380px;overflow-y:auto;">
+                        <div style="text-align:center;color:rgba(255,255,255,0.3);padding:2rem;">Cargando usuarios...</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón flotante admin (solo visible para administradores) -->
+    <button id="admin-fab" onclick="abrirAdmin()" style="display: block; position: fixed; bottom: 1.5rem; right: 1.5rem; background: linear-gradient(135deg,var(--oro),#b8960c); color: var(--oxford); border: none; width: 52px; height: 52px; border-radius: 50%; font-size: 1.3rem; cursor: pointer; z-index: 1000; box-shadow: rgba(207, 181, 59, 0.4) 0px 4px 20px; font-weight: 800;" title="Panel Admin">👑</button>
+
+</div><!-- /app-principal -->
+
+    <script>
+    // ══════════════════════════════════════════════════
+    // PANEL ADMINISTRADOR JS
+    // ══════════════════════════════════════════════════
+
+    function abrirAdmin() {
+        document.getElementById('admin-panel').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        adminTab('lista');
+    }
+
+    function cerrarAdmin() {
+        document.getElementById('admin-panel').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
+    function adminTab(tab) {
+        if (tab==='usuarios') cargarUsuariosAdmin();
+        ['lista','stats','usuarios'].forEach(t => {
+            const panel = document.getElementById('admin_'+t);
+            const btn   = document.getElementById('atab_'+t);
+            if (panel) panel.style.display = t===tab ? 'block' : 'none';
+            if (btn) {
+                if (t===tab) {
+                    btn.style.background = 'var(--pp-mid)'; btn.style.color = 'var(--pp-dark)'; btn.style.border = 'none';
+                } else {
+                    btn.style.background = 'rgba(58,168,142,0.12)'; btn.style.color = 'var(--pp-mid)'; btn.style.border = '1px solid rgba(207,181,59,0.3)';
+                }
+            }
+        });
+        if (tab==='lista') adminCargarCodigos();
+        if (tab==='stats') adminCargarStats();
+    }
+
+
+
+
+
+    async function adminCargarCodigos() {
+        const contenedor = document.getElementById('adm_tabla_codigos');
+        const totalEl    = document.getElementById('adm_total_codigos');
+        if (!contenedor) return;
+        contenedor.innerHTML = '<div style="text-align:center;padding:1.5rem;color:rgba(255,255,255,0.4);">Cargando...</div>';
+
+        try {
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?select=*&order=fecha_expiracion.desc`,
+                { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }}
+            );
+            const data = await res.json();
+            if (!Array.isArray(data)) throw new Error('Sin datos');
+
+            const hoy = new Date();
+            totalEl.textContent = `${data.length} códigos en total`;
+
+            if (data.length===0) {
+                contenedor.innerHTML = '<div style="text-align:center;padding:1.5rem;color:rgba(255,255,255,0.3);">No hay códigos registrados</div>';
+                return;
+            }
+
+            let calcCountMap = {}; // cálculos guardados eliminados
+
+            let html = `<table style="width:100%;border-collapse:collapse;font-size:0.73rem;">
+                <thead>
+                    <tr style="background:rgba(207,181,59,0.1);">
+                        <th style="padding:0.5rem 0.4rem;color:var(--oro);text-align:left;font-weight:700;">Código</th>
+                        <th style="padding:0.5rem 0.4rem;color:var(--oro);text-align:left;font-weight:700;">Asesor / Despacho</th>
+                        <th style="padding:0.5rem 0.4rem;color:var(--oro);text-align:center;font-weight:700;">Estado</th>
+                        <th style="padding:0.5rem 0.4rem;color:var(--oro);text-align:center;font-weight:700;">Expira</th>
+                    </tr>
+                </thead><tbody>`;
+
+            data.forEach((row, i) => {
+                const expira   = new Date(row.fecha_expiracion);
+                const expirado = expira < hoy && expira.getFullYear() < 2090;
+                const diasRest = Math.ceil((expira-hoy)/86400000);
+                const expiraStr= expira.getFullYear()>=2090 ? '∞ Sin límite' : expira.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+                const estadoColor = expirado ? '#e53e3e' : row.activo ? '#22c55e' : '#f59e0b';
+                const estadoTxt   = expirado ? '🔴 Expirado' : row.activo ? '🟢 Activo' : '🟡 En espera';
+                const bg = i%2===0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+                const asesorInfo  = [row.nombre_despacho, row.nombre_asesor].filter(Boolean).join(' · ') || '—';
+                const telInfo     = row.telefono_asesor ? `<div style="color:rgba(255,255,255,0.3);font-size:0.63rem;">📞 ${row.telefono_asesor}</div>` : '';
+                const correoInfo  = row.correo
+                    ? `<div style="color:rgba(110,231,183,0.8);font-size:0.63rem;font-weight:600;">📧 ${row.correo}</div>`
+                    : `<div style="color:rgba(255,255,255,0.2);font-size:0.63rem;font-style:italic;">sin correo</div>`;
+
+                html += `<tr style="background:${bg};border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <td style="padding:0.45rem 0.4rem;color:var(--oro);font-weight:700;font-family:monospace;white-space:nowrap;">${row.codigo}</td>
+                    <td style="padding:0.45rem 0.4rem;color:rgba(255,255,255,0.7);max-width:130px;">
+                        <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${asesorInfo}">${asesorInfo}</div>
+                        ${telInfo}
+                        ${correoInfo}
+                    </td>
+                    <td style="padding:0.45rem 0.4rem;text-align:center;white-space:nowrap;">
+                        <span style="color:${estadoColor};font-weight:700;font-size:0.7rem;">${estadoTxt}</span>
+                        ${!expirado && row.activo && diasRest < 999 ? `<div style="color:rgba(255,255,255,0.3);font-size:0.62rem;">${diasRest}d</div>` : ''}
+                    </td>
+                    <td style="padding:0.45rem 0.4rem;text-align:center;white-space:nowrap;">
+                        <div style="color:rgba(255,255,255,0.55);font-size:0.7rem;">${expiraStr}</div>
+
+                    </td>
+
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            contenedor.innerHTML = html;
+
+        } catch(e) {
+            contenedor.innerHTML = `<div style="color:#ef4444;text-align:center;padding:1rem;">Error: ${e.message}</div>`;
+        }
+    }
+
+
+
+    async function adminCargarStats() {
+        const contenedor = document.getElementById('adm_stats_cards');
+        try {
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?select=*`,
+                { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }}
+            );
+            const data = await res.json();
+            if (!Array.isArray(data)) return;
+            const hoy = new Date();
+
+            const total       = data.length;
+            const activos     = data.filter(r => r.activo && new Date(r.fecha_expiracion) >= hoy).length;
+            const enEspera    = data.filter(r => !r.activo && new Date(r.fecha_expiracion) >= hoy).length;
+            const expirados   = data.filter(r => new Date(r.fecha_expiracion) < hoy && new Date(r.fecha_expiracion).getFullYear() < 2090).length;
+            const disponibles = data.filter(r => r.nombre_cliente === 'DISPONIBLE' && r.activo).length;
+            const regalo      = data.filter(r => r.nombre_cliente === 'REGALO').length;
+            const usados      = data.filter(r => r.sesion_token).length;
+            const vencen7     = data.filter(r => {
+                const exp = new Date(r.fecha_expiracion);
+                const dias = Math.ceil((exp - hoy) / 86400000);
+                return r.activo && dias > 0 && dias <= 7;
+            }).length;
+
+            document.getElementById('stat_total').textContent     = total;
+            document.getElementById('stat_activos').textContent   = activos;
+            document.getElementById('stat_expirados').textContent = expirados;
+
+            // Extra stats
+            contenedor.innerHTML = `
+                <div style="background:rgba(207,181,59,0.08);border:1px solid rgba(207,181,59,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:var(--oro);">${total}</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Total códigos</div>
+                </div>
+                <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#22c55e;">${activos}</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Activos y vigentes</div>
+                </div>
+                <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#ef4444;">${expirados}</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Expirados</div>
+                </div>
+                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#f59e0b;">${enEspera}</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">En espera (inactivos)</div>
+                </div>
+                <div style="background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#63b3ed;">${usados}</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Han iniciado sesión</div>
+                </div>
+                <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#a78bfa;">${disponibles}</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Disponibles p/vender</div>
+                </div>
+                <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#34d399;">${regalo}</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Códigos regalo</div>
+                </div>
+                <div style="background:rgba(251,113,133,0.08);border:1px solid rgba(251,113,133,0.2);border-radius:8px;padding:1rem;text-align:center;">
+                    <div style="font-size:2rem;font-weight:800;color:#fb7185;">${vencen7}</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:4px;">Vencen en ≤7 días</div>
+                </div>
+            `;
+
+            // Tabla de próximos a vencer
+            const proximos = data
+                .filter(r => r.activo && new Date(r.fecha_expiracion) > hoy && new Date(r.fecha_expiracion).getFullYear() < 2090)
+                .sort((a,b) => new Date(a.fecha_expiracion) - new Date(b.fecha_expiracion))
+                .slice(0, 8);
+
+            if (proximos.length > 0) {
+                let tabla = `
+                    <div style="margin-top:1.5rem;">
+                        <div style="color:var(--oro);font-size:0.82rem;font-weight:800;margin-bottom:0.8rem;">⏰ Próximos a vencer</div>
+                        <table style="width:100%;border-collapse:collapse;font-size:0.73rem;">
+                            <thead><tr style="background:rgba(207,181,59,0.08);">
+                                <th style="padding:0.4rem;color:var(--oro);text-align:left;">Código</th>
+                                <th style="padding:0.4rem;color:var(--oro);text-align:left;">Cliente</th>
+                                <th style="padding:0.4rem;color:var(--oro);text-align:center;">Vence</th>
+                                <th style="padding:0.4rem;color:var(--oro);text-align:center;">Días</th>
+                            </tr></thead><tbody>`;
+                proximos.forEach((r,i) => {
+                    const dias = Math.ceil((new Date(r.fecha_expiracion) - hoy) / 86400000);
+                    const color = dias <= 3 ? '#e53e3e' : dias <= 7 ? '#f59e0b' : '#22c55e';
+                    const bg = i%2===0 ? 'rgba(255,255,255,0.02)' : 'transparent';
+                    tabla += `<tr style="background:${bg};border-bottom:1px solid rgba(255,255,255,0.04);">
+                        <td style="padding:0.4rem;color:var(--oro);font-family:monospace;font-size:0.7rem;">${r.codigo}</td>
+                        <td style="padding:0.4rem;color:rgba(255,255,255,0.6);font-size:0.7rem;">${r.nombre_cliente || r.nombre_asesor || '—'}</td>
+                        <td style="padding:0.4rem;text-align:center;color:rgba(255,255,255,0.5);font-size:0.7rem;">${new Date(r.fecha_expiracion).toLocaleDateString('es-MX',{day:'2-digit',month:'short'})}</td>
+                        <td style="padding:0.4rem;text-align:center;font-weight:800;color:${color};font-size:0.75rem;">${dias}d</td>
+                    </tr>`;
+                });
+                tabla += '</tbody></table></div>';
+                contenedor.innerHTML += tabla;
+            }
+
+        } catch(e) {
+            contenedor.innerHTML = `<div style="color:#ef4444;padding:1rem;text-align:center;">Error: ${e.message}</div>`;
+        }
+    }
+
+    // ── Tab Usuarios: muestra solo los que han iniciado sesión ──
+    async function cargarUsuariosAdmin() {
+        const lista = document.getElementById('admin_usuarios_lista');
+        if (!lista) return;
+        lista.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:1.5rem;">⏳ Cargando...</div>';
+        try {
+            const res = await fetch(
+                `${SUPABASE_URL}/rest/v1/${TABLA_ACCESOS}?sesion_token=not.is.null&select=codigo,nombre_cliente,nombre_asesor,nombre_despacho,correo,telefono_asesor,fecha_expiracion,activo&order=fecha_expiracion.desc`,
+                { headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }}
+            );
+            const data = await res.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                lista.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:2rem;">Ningún usuario ha iniciado sesión aún.</div>';
+                return;
+            }
+            const hoy = new Date();
+            lista.innerHTML = data.map((u, i) => {
+                const expira   = new Date(u.fecha_expiracion);
+                const expirado = expira < hoy;
+                const diasRest = Math.ceil((expira - hoy) / 86400000);
+                const colorEstado = expirado ? '#e53e3e' : u.activo ? '#22c55e' : '#f59e0b';
+
+
+
     
 
     // ══════════════════════════════════════════════════
 
 </script>
+<!-- Cloudflare beacon eliminado (archivo local no disponible en producción) -->
 
+<!-- ════════════════════════════════════════════════════════════════════════
+     PASO 3 · MODALIDAD 40 RETROACTIVA — MÓDULO LIMPIO (reescrito 2026)
+     Reemplaza todo el Paso 3 fragmentado anterior. Sin funciones duplicadas.
+     Reusa el motor del Paso 2: calcularPensionLocal(), pmgSegunBaja(), umaSegunBaja()
+     ════════════════════════════════════════════════════════════════════════ -->
+<div id="mod40-section" style="max-width:1100px;margin:2.5rem auto;padding:0 1rem;font-family:'DM Sans',system-ui,sans-serif;">
 
-
-<!-- ══════════════════════════════════════════════════════════════════════
-     PASO 3: MODALIDAD 40 RETROACTIVA
-     Motor alineado al Excel tuplanderetiro.mx
-     ══════════════════════════════════════════════════════════════════════ -->
-
-<div id="mod40-section" style="max-width:1100px;margin:2rem auto;padding:0 1rem;">
-
-  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
-    <div style="background:var(--oro);color:var(--oxford);font-weight:800;font-size:0.8rem;padding:0.3rem 0.8rem;border-radius:20px;letter-spacing:1px;">PASO 3</div>
-    <h2 style="color:var(--pp-dark);font-size:1.3rem;font-weight:700;margin:0;">Proyecto Modalidad 40 Retroactiva — Mejora tu Pensión</h2>
+  <!-- Encabezado -->
+  <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.5rem;">
+    <span style="background:#2e7d32;color:#fff;font-weight:800;font-size:0.78rem;padding:0.3rem 0.9rem;border-radius:20px;letter-spacing:1px;">PASO 3</span>
+    <h2 style="color:#2e7d32;font-size:1.45rem;font-weight:800;margin:0;">Modalidad 40 — Mejora tu Pensión</h2>
   </div>
 
-  <!-- ══ 1. REQUISITOS ══ -->
-  <div style="background:#e8f5e9;border:2px solid #4caf50;border-radius:10px;padding:1.3rem;margin-bottom:1.5rem;">
-    <div style="font-size:0.85rem;font-weight:800;color:#2e7d32;margin-bottom:0.8rem;text-transform:uppercase;letter-spacing:0.5px;">✅ Requisitos Modalidad 40 (IMSS 2026)</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
-      <div style="color:#2e7d32;font-size:0.88rem;">✅ Estar dado de baja ante el IMSS</div>
-      <div style="color:#2e7d32;font-size:0.88rem;">✅ No haber pasado más de 5 años desde la baja</div>
-      <div style="color:#2e7d32;font-size:0.88rem;">✅ Al menos 52 semanas cotizadas en los últimos 5 años</div>
-      <div style="color:#2e7d32;font-size:0.88rem;">✅ El salario de cotización no podrá ser menor al último registrado ante el IMSS, con un máximo de 25 UMAs ($2,828.50/día)</div>
+  <!-- ░░ 1 · REQUISITOS ░░ -->
+  <div style="background:#e8f5e9;border:2px solid #4caf50;border-radius:12px;padding:1.3rem 1.5rem;margin-bottom:1.5rem;">
+    <div style="color:#2e7d32;font-weight:800;font-size:1rem;margin-bottom:0.9rem;">✓ Requisitos para Modalidad 40 — IMSS 2026</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem 1.5rem;color:#33691e;font-size:0.9rem;">
+      <div>✅ Estar dado de baja ante el IMSS</div>
+      <div>✅ No más de 5 años desde la baja</div>
+      <div>✅ Mínimo 52 semanas cotizadas en los últimos 5 años</div>
+      <div>✅ Salario de $315.04 a $2,828.50/día (máx 25 UMAs)</div>
     </div>
   </div>
 
-  <!-- ══ 2. DATOS DEL TRABAJADOR (arrastrados del Paso 2) ══ -->
-  <div style="background:#fff;border:2px solid #2196f3;border-radius:10px;padding:1.3rem;margin-bottom:1.5rem;">
-    <div style="font-size:0.85rem;font-weight:800;color:#1565c0;margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.5px;">📊 Datos del trabajador</div>
+  <!-- ░░ 2 · DATOS DEL CLIENTE (arrastrados del Paso 2) ░░ -->
+  <div style="background:#fff;border:2px solid #2196f3;border-radius:12px;padding:1.3rem 1.5rem;margin-bottom:1.5rem;">
+    <div style="color:#1976d2;font-weight:800;font-size:1rem;margin-bottom:1rem;">📋 Datos del trabajador <span style="font-weight:500;color:#90a4ae;font-size:0.8rem;">(tomados del Paso 2)</span></div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
-      <div style="background:#f5f5f5;padding:0.9rem;border-radius:8px;text-align:center;">
-        <div style="font-size:0.72rem;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:0.4rem;">Nombre</div>
-        <div style="font-size:1rem;font-weight:800;color:#1565c0;" id="m40d_nombre">—</div>
+      <div style="background:#f5f9ff;border-radius:8px;padding:0.9rem;text-align:center;">
+        <div style="font-size:0.72rem;color:#90a4ae;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Nombre</div>
+        <div style="font-size:0.95rem;font-weight:800;color:#1976d2;" id="m40_d_nombre">—</div>
       </div>
-      <div style="background:#f5f5f5;padding:0.9rem;border-radius:8px;text-align:center;">
-        <div style="font-size:0.72rem;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:0.4rem;">Edad</div>
-        <div style="font-size:1.4rem;font-weight:900;color:#1565c0;" id="m40d_edad">—</div>
+      <div style="background:#f5f9ff;border-radius:8px;padding:0.9rem;text-align:center;">
+        <div style="font-size:0.72rem;color:#90a4ae;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Edad</div>
+        <div style="font-size:1.3rem;font-weight:900;color:#1976d2;" id="m40_d_edad">—</div>
       </div>
-      <div style="background:#f5f5f5;padding:0.9rem;border-radius:8px;text-align:center;">
-        <div style="font-size:0.72rem;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:0.4rem;">Semanas</div>
-        <div style="font-size:1.4rem;font-weight:900;color:#1565c0;" id="m40d_semanas">—</div>
+      <div style="background:#f5f9ff;border-radius:8px;padding:0.9rem;text-align:center;">
+        <div style="font-size:0.72rem;color:#90a4ae;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Semanas</div>
+        <div style="font-size:1.3rem;font-weight:900;color:#1976d2;" id="m40_d_semanas">—</div>
       </div>
-      <div style="background:#f5f5f5;padding:0.9rem;border-radius:8px;text-align:center;">
-        <div style="font-size:0.72rem;color:#666;font-weight:700;text-transform:uppercase;margin-bottom:0.4rem;">SBC actual/día</div>
-        <div style="font-size:1.4rem;font-weight:900;color:#1565c0;">$<span id="m40d_sbc1">—</span></div>
+      <div style="background:#f5f9ff;border-radius:8px;padding:0.9rem;text-align:center;">
+        <div style="font-size:0.72rem;color:#90a4ae;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">SBC actual</div>
+        <div style="font-size:1.3rem;font-weight:900;color:#1976d2;">$<span id="m40_d_sbc1">—</span></div>
+      </div>
+    </div>
+    <div style="margin-top:0.8rem;font-size:0.78rem;color:#90a4ae;text-align:right;">
+      Pensión actual sin M40: <strong style="color:#1976d2;" id="m40_d_pension_actual">—</strong>
+    </div>
+  </div>
+
+  <!-- ░░ 3 · FECHAS M40 ░░ -->
+  <div style="background:#fff;border:2px solid #ff9800;border-radius:12px;padding:1.3rem 1.5rem;margin-bottom:1.5rem;">
+    <div style="color:#e65100;font-weight:800;font-size:1rem;margin-bottom:1rem;">📅 Periodo de Modalidad 40 Retroactiva</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;">
+      <div>
+        <label style="display:block;font-size:0.8rem;color:#37474f;font-weight:700;margin-bottom:0.4rem;">Fecha de baja IMSS</label>
+        <input type="date" id="m40_fecha_baja" onchange="m40_calcInicio()" style="width:100%;padding:0.7rem;border:2px solid #ff9800;border-radius:8px;font-size:0.9rem;font-weight:600;box-sizing:border-box;">
+        <small style="color:#90a4ae;font-size:0.72rem;">Editable</small>
+      </div>
+      <div>
+        <label style="display:block;font-size:0.8rem;color:#37474f;font-weight:700;margin-bottom:0.4rem;">Inicio M40 (baja + 1 día)</label>
+        <input type="date" id="m40_fecha_inicio" readonly style="width:100%;padding:0.7rem;border:2px solid #4caf50;border-radius:8px;background:#f1f8f4;font-size:0.9rem;font-weight:700;color:#2e7d32;cursor:not-allowed;box-sizing:border-box;">
+        <small style="color:#90a4ae;font-size:0.72rem;">Fijo por ley · no editable</small>
+      </div>
+      <div>
+        <label style="display:block;font-size:0.8rem;color:#37474f;font-weight:700;margin-bottom:0.4rem;">Término M40</label>
+        <input type="date" id="m40_fecha_termino" onchange="m40_validarTermino()" style="width:100%;padding:0.7rem;border:2px solid #ff9800;border-radius:8px;font-size:0.9rem;font-weight:600;box-sizing:border-box;">
+        <small style="color:#90a4ae;font-size:0.72rem;">Hoy o futura · tope 5 años</small>
       </div>
     </div>
   </div>
 
-  <!-- ══ 3. PERIODO M40 RETROACTIVA ══ -->
-  <div style="background:#fff;border:2px solid #ff9800;border-radius:10px;padding:1.3rem;margin-bottom:1.5rem;">
-    <div style="font-size:0.85rem;font-weight:800;color:#e65100;margin-bottom:1.2rem;text-transform:uppercase;letter-spacing:0.5px;">📅 Periodo de Modalidad 40 Retroactiva</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.2rem;">
-      <div>
-        <label style="display:block;font-size:0.82rem;color:#333;font-weight:700;margin-bottom:0.4rem;">Fecha de Baja IMSS</label>
-        <input type="date" id="m40p_fecha_baja" style="width:100%;padding:0.7rem;border:2px solid #ff9800;border-radius:7px;font-size:0.92rem;font-weight:600;" onchange="m40p_sync_inicio()">
-        <div style="font-size:0.73rem;color:#666;margin-top:0.3rem;">Editable — proviene del Paso 2.</div>
-      </div>
-      <div>
-        <label style="display:block;font-size:0.82rem;color:#333;font-weight:700;margin-bottom:0.4rem;">Inicio M40 (día siguiente a la baja)</label>
-        <input type="date" id="m40p_fecha_inicio" readonly style="width:100%;padding:0.7rem;border:2px solid #4caf50;border-radius:7px;font-size:0.92rem;font-weight:600;background:#e8f5e9;cursor:not-allowed;color:#2e7d32;">
-        <div style="font-size:0.73rem;color:#666;margin-top:0.3rem;">Fijo por ley — no se puede modificar.</div>
-      </div>
+  <!-- ░░ 4 · LOS 3 ESCENARIOS ░░ -->
+  <div style="background:#fff;border:2px solid #7b1fa2;border-radius:12px;padding:1.3rem 1.5rem;margin-bottom:1.5rem;">
+    <div style="color:#6a1b9a;font-weight:800;font-size:1rem;margin-bottom:0.4rem;">🔄 Tres escenarios de inversión</div>
+    <p style="color:#90a4ae;font-size:0.84rem;margin:0 0 1.2rem;">Define años, meses y UMAs de cada escenario. Cada uno calcula su propio salario promedio (SBC2), pensión proyectada y costo.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;" id="m40_escenarios_inputs">
+      <!-- generados por JS -->
     </div>
-    <div>
-      <label style="display:block;font-size:0.82rem;color:#333;font-weight:700;margin-bottom:0.4rem;">Término del periodo (hoy o fecha futura)</label>
-      <input type="date" id="m40p_fecha_termino" style="width:100%;padding:0.7rem;border:2px solid #ff9800;border-radius:7px;font-size:0.92rem;font-weight:600;" onchange="m40p_validar_tope()">
-      <div style="font-size:0.73rem;color:#666;margin-top:0.3rem;">⚠️ Máximo 5 años (60 meses) desde la fecha de baja.</div>
-    </div>
-  </div>
-
-  <!-- ══ 4. TRES ESCENARIOS ══ -->
-  <div style="background:#fff;border:2px solid #7b1fa2;border-radius:10px;padding:1.3rem;margin-bottom:1.5rem;">
-    <div style="font-size:0.85rem;font-weight:800;color:#6a1b9a;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.5px;">🔄 Tres escenarios de inversión</div>
-    <div style="font-size:0.82rem;color:#666;margin-bottom:1.2rem;">Define cuánto tiempo cotizarías y con cuántas UMAs en cada escenario (máximo 25 UMAs = $2,828.50/día).</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;">
-
-      <!-- E1 -->
-      <div style="background:#f9f9f9;border-radius:9px;padding:1.1rem;border-top:4px solid #4caf50;">
-        <div style="font-weight:800;font-size:0.88rem;color:#2e7d32;margin-bottom:0.9rem;text-transform:uppercase;letter-spacing:0.5px;">▶ Escenario 1</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.7rem;">
-          <div>
-            <label style="display:block;font-size:0.74rem;color:#666;font-weight:700;margin-bottom:0.3rem;">Años</label>
-            <input id="m40e1_anios" type="number" min="0" max="5" value="2" style="width:100%;padding:0.6rem;border:2px solid #ddd;border-radius:6px;font-size:0.9rem;font-weight:600;" oninput="m40e_uma_real(1)">
-          </div>
-          <div>
-            <label style="display:block;font-size:0.74rem;color:#666;font-weight:700;margin-bottom:0.3rem;">Meses</label>
-            <input id="m40e1_meses" type="number" min="0" max="11" value="0" style="width:100%;padding:0.6rem;border:2px solid #ddd;border-radius:6px;font-size:0.9rem;font-weight:600;" oninput="m40e_uma_real(1)">
-          </div>
-        </div>
-        <label style="display:block;font-size:0.74rem;color:#666;font-weight:700;margin-bottom:0.3rem;">UMAs (1–25)</label>
-        <input id="m40e1_umas" type="number" min="1" max="25" value="10" style="width:100%;padding:0.6rem;border:2px solid #ddd;border-radius:6px;font-size:0.9rem;font-weight:600;" oninput="m40e_uma_real(1)">
-        <div style="font-size:0.78rem;color:#666;text-align:center;margin-top:0.4rem;">= <strong style="color:#ff9800;" id="m40e1_sal_dia">$1,131.40</strong>/día</div>
-      </div>
-
-      <!-- E2 -->
-      <div style="background:#f9f9f9;border-radius:9px;padding:1.1rem;border-top:4px solid #2196f3;">
-        <div style="font-weight:800;font-size:0.88rem;color:#1565c0;margin-bottom:0.9rem;text-transform:uppercase;letter-spacing:0.5px;">▶ Escenario 2</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.7rem;">
-          <div>
-            <label style="display:block;font-size:0.74rem;color:#666;font-weight:700;margin-bottom:0.3rem;">Años</label>
-            <input id="m40e2_anios" type="number" min="0" max="5" value="3" style="width:100%;padding:0.6rem;border:2px solid #ddd;border-radius:6px;font-size:0.9rem;font-weight:600;" oninput="m40e_uma_real(2)">
-          </div>
-          <div>
-            <label style="display:block;font-size:0.74rem;color:#666;font-weight:700;margin-bottom:0.3rem;">Meses</label>
-            <input id="m40e2_meses" type="number" min="0" max="11" value="6" style="width:100%;padding:0.6rem;border:2px solid #ddd;border-radius:6px;font-size:0.9rem;font-weight:600;" oninput="m40e_uma_real(2)">
-          </div>
-        </div>
-        <label style="display:block;font-size:0.74rem;color:#666;font-weight:700;margin-bottom:0.3rem;">UMAs (1–25)</label>
-        <input id="m40e2_umas" type="number" min="1" max="25" value="15" style="width:100%;padding:0.6rem;border:2px solid #ddd;border-radius:6px;font-size:0.9rem;font-weight:600;" oninput="m40e_uma_real(2)">
-        <div style="font-size:0.78rem;color:#666;text-align:center;margin-top:0.4rem;">= <strong style="color:#ff9800;" id="m40e2_sal_dia">$1,697.10</strong>/día</div>
-      </div>
-
-      <!-- E3 -->
-      <div style="background:#f9f9f9;border-radius:9px;padding:1.1rem;border-top:4px solid #ff9800;">
-        <div style="font-weight:800;font-size:0.88rem;color:#e65100;margin-bottom:0.9rem;text-transform:uppercase;letter-spacing:0.5px;">▶ Escenario 3</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.7rem;">
-          <div>
-            <label style="display:block;font-size:0.74rem;color:#666;font-weight:700;margin-bottom:0.3rem;">Años</label>
-            <input id="m40e3_anios" type="number" min="0" max="5" value="5" style="width:100%;padding:0.6rem;border:2px solid #ddd;border-radius:6px;font-size:0.9rem;font-weight:600;" oninput="m40e_uma_real(3)">
-          </div>
-          <div>
-            <label style="display:block;font-size:0.74rem;color:#666;font-weight:700;margin-bottom:0.3rem;">Meses</label>
-            <input id="m40e3_meses" type="number" min="0" max="11" value="0" style="width:100%;padding:0.6rem;border:2px solid #ddd;border-radius:6px;font-size:0.9rem;font-weight:600;" oninput="m40e_uma_real(3)">
-          </div>
-        </div>
-        <label style="display:block;font-size:0.74rem;color:#666;font-weight:700;margin-bottom:0.3rem;">UMAs (1–25)</label>
-        <input id="m40e3_umas" type="number" min="1" max="25" value="25" style="width:100%;padding:0.6rem;border:2px solid #ddd;border-radius:6px;font-size:0.9rem;font-weight:600;" oninput="m40e_uma_real(3)">
-        <div style="font-size:0.78rem;color:#666;text-align:center;margin-top:0.4rem;">= <strong style="color:#ff9800;" id="m40e3_sal_dia">$2,828.50</strong>/día</div>
-      </div>
-    </div>
-
-    <button onclick="m40_calcular()" style="width:100%;background:linear-gradient(135deg,#4caf50,#66bb6a);color:#fff;border:none;padding:1.05rem;border-radius:9px;font-size:1rem;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;margin-top:1.4rem;box-shadow:0 4px 14px rgba(76,175,80,0.3);">
+    <button onclick="m40_calcularTodo()" style="width:100%;margin-top:1.4rem;background:linear-gradient(135deg,#2e7d32,#43a047);color:#fff;border:none;padding:1rem;border-radius:10px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:0.5px;box-shadow:0 4px 14px rgba(46,125,50,0.3);">
       ⚡ Calcular los 3 escenarios
     </button>
   </div>
 
-  <!-- ══ 5. RESULTADOS (oculto hasta calcular) ══ -->
-  <div id="m40_resultados_wrap" style="display:none;">
-
-    <!-- Comparativa de los 3 -->
-    <div style="background:#fff;border:2px solid #2196f3;border-radius:10px;padding:1.3rem;margin-bottom:1.5rem;">
-      <div style="font-size:0.85rem;font-weight:800;color:#1565c0;margin-bottom:1.2rem;text-transform:uppercase;letter-spacing:0.5px;">📈 Resultados — comparativa de los 3 escenarios</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;" id="m40_grid_comparativa"></div>
-    </div>
-
-    <!-- Detalle completo de los 3 -->
-    <div style="background:#fff;border:2px solid #ff9800;border-radius:10px;padding:1.3rem;margin-bottom:1.5rem;">
-      <div style="font-size:0.85rem;font-weight:800;color:#e65100;margin-bottom:1.2rem;text-transform:uppercase;letter-spacing:0.5px;">💰 Detalle completo de cada escenario</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;" id="m40_grid_detalle"></div>
-    </div>
-
-    <!-- Proyección a futuro con inflación -->
-    <div style="background:#fff;border:2px solid #7b1fa2;border-radius:10px;padding:1.3rem;margin-bottom:1.5rem;">
-      <div style="font-size:0.85rem;font-weight:800;color:#6a1b9a;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.5px;">📊 Proyección de pensión a futuro</div>
-      <div style="font-size:0.8rem;color:#666;margin-bottom:1rem;">Valores proyectados con inflación anual del 4.5% (basado en tendencia histórica UMA). Los importes futuros son equivalentes al poder adquisitivo de hoy.</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;" id="m40_grid_proyeccion"></div>
-    </div>
-
+  <!-- ░░ 5 · RESULTADOS LADO A LADO ░░ -->
+  <div id="m40_resultados" style="display:none;margin-bottom:1.5rem;">
+    <h3 style="color:#2e7d32;font-size:1.15rem;font-weight:800;margin:0 0 1rem;">📊 Resultados de Modalidad 40</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;" id="m40_resultados_grid"></div>
   </div>
+
+  <!-- ░░ 6 · DETALLE COMPLETO DE LOS 3 ░░ -->
+  <div id="m40_detalle" style="display:none;">
+    <h3 style="color:#2e7d32;font-size:1.15rem;font-weight:800;margin:0 0 1rem;">🔬 Detalle completo de los 3 escenarios</h3>
+    <div id="m40_detalle_cont"></div>
+  </div>
+
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════════════════════════
-// CONSTANTES — Alineadas al Excel tuplanderetiro.mx
-// ════════════════════════════════════════════════════════════════════════════════
-const M40_UMA_BASE      = 113.14;   // UMA diaria 2026
-const M40_UMA_CRECIMIENTO = 0.045;  // 4.5% anual proyectado
-const M40_PMG           = 10636.54;
-const M40_TOPE_UMAS     = 25;
-const M40_AFORE_PCT     = 0.1985;   // 19.85% (exacto del Excel, no 20%)
-const M40_INFLACION     = 0.045;    // 4.5% proyección futura
-const M40_DIA_CORTE     = 17;       // regla IMSS: si día ≥ 17, entra mes siguiente
-const M40_ANIO_BASE     = 2026;
+/* ════════════════════════════════════════════════════════════════════════
+   MOTOR MODALIDAD 40 — versión única y limpia (sin duplicados)
+   ════════════════════════════════════════════════════════════════════════ */
+(function(){
+  "use strict";
 
-// Cuotas obrero-patronales por año (exactas del Excel)
-const M40_CUOTAS = {
-  2019:0.10075,2020:0.10075,2021:0.10075,2022:0.10075,
-  2023:0.11166,2024:0.12256,2025:0.13347,2026:0.14438,
-  2027:0.15528,2028:0.16619,2029:0.17709,2030:0.18800,2031:0.18800
-};
+  // ── Constantes (UMA unificada: 113.14 diaria 2026) ──
+  const UMA_DIA   = 113.14;
+  const SMG_DIA   = 315.04;
+  const TOPE_UMAS = 25;
+  const VENTANA   = 250;            // semanas para el SBC2
+  const DIAS_MES  = 30.4;
+  const MARGEN    = 0.08;           // margen de seguridad IMSS
+  const AFORE_REC = 0.20;           // recuperación AFORE
+  const NUM_ESC   = 3;
 
-// Actualización mensual INPC por año (del Excel)
-const M40_ACTUALIZACION = {
-  2019:0.0030333,2020:0.002625,2021:0.005,
-  2022:0.0065166,2023:0.0038833,2024:0.0043,2025:0.0036
-};
-const M40_ACT_DEFAULT = 0.0040; // promedio para años futuros
+  // % de cuota M40 sobre el salario, por año (proporcional al salario elegido)
+  const CUOTA_PCT = {2019:0.10075,2020:0.10075,2021:0.10075,2022:0.10075,2023:0.11166,
+                     2024:0.12256,2025:0.13347,2026:0.14438,2027:0.15528,2028:0.16619,
+                     2029:0.17709,2030:0.18800,2031:0.18800};
+  const INFLA_MES = {2019:0.00303,2020:0.00263,2021:0.0050,2022:0.00652,2023:0.00388,
+                     2024:0.0043,2025:0.0036,2026:0.0036};
+  const cuotaPct  = a => CUOTA_PCT[a] || CUOTA_PCT[2026];
+  const inflaMes  = a => INFLA_MES[a] || INFLA_MES[2026];
+  const tasaReca  = a => a < 2026 ? 0.0147 : 0.0207;
 
-// Recargos SAT
-const M40_RECARGO_ANTES_2026 = 0.0147; // 1.47% mensual hasta 2025
-const M40_RECARGO_DESDE_2026 = 0.0207; // 2.07% mensual desde 2026
+  const fMon = n => '$' + (n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const fInt = n => (n||0).toLocaleString('es-MX',{maximumFractionDigits:0});
 
-// Tabla Art. 167 LSS-73
-const M40_TABLA_LEY73 = [
-  [1,0.8,0.00563],[1.25,0.7711,0.00814],[1.5,0.5818,0.01178],
-  [1.75,0.4923,0.0143],[2,0.4267,0.01615],[2.5,0.3368,0.01868],
-  [3,0.2783,0.02033],[4,0.2065,0.02235],[5,0.1641,0.02355],[6,0.1362,0.02433]
-];
+  // ── Lee un valor numérico del Paso 2 ──
+  function p2num(id){ const e=document.getElementById(id); return e? (parseFloat(e.value)||0) : 0; }
+  function p2str(id){ const e=document.getElementById(id); return e? (e.value||'') : ''; }
 
-// ════════════════════════════════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════════════════════════════════
-const m40_fmt = n => '$'+parseFloat(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
-const m40_fmt0= n => '$'+Math.round(n).toLocaleString('es-MX');
+  // ── 2 · Arrastra datos del Paso 2 ──
+  function arrastrar(){
+    const nombre  = p2str('v_nombre') || '—';
+    const edad    = p2num('v_edad')   || 60;
+    const semanas = p2num('v_semanas')|| 0;
+    const sbc1    = p2num('v_salario')|| 0;
+    const fbaja   = p2str('v_fecha_baja');
 
-// UMA proyectada para un año dado
-function m40_uma_año(anio) {
-  const delta = anio - M40_ANIO_BASE;
-  return M40_UMA_BASE * Math.pow(1 + M40_UMA_CRECIMIENTO, delta);
-}
+    document.getElementById('m40_d_nombre').textContent  = nombre;
+    document.getElementById('m40_d_edad').textContent    = edad ? edad+' años' : '—';
+    document.getElementById('m40_d_semanas').textContent = semanas || '—';
+    document.getElementById('m40_d_sbc1').textContent    = sbc1 ? sbc1.toFixed(2) : '—';
 
-// Cuota del año (clampeada)
-function m40_cuota_año(anio) {
-  if (anio <= 2019) return M40_CUOTAS[2019];
-  if (anio >= 2031) return M40_CUOTAS[2031];
-  return M40_CUOTAS[anio] || M40_CUOTAS[2031];
-}
-
-// ════════════════════════════════════════════════════════════════════════════════
-// MOTOR 1 — Pensión Ley 73 Art. 167 (mensual)
-// ════════════════════════════════════════════════════════════════════════════════
-function m40_pension_ley73(sbc, semanas, edad, beneficiarios) {
-  edad    = Math.min(65, Math.max(60, edad || 60));
-  semanas = Math.max(500, semanas || 500);
-  const vu = sbc / M40_UMA_BASE;
-  let pc = 0.13, pi = 0.0245;
-  for (const t of M40_TABLA_LEY73) { if (vu <= t[0]) { pc = t[1]; pi = t[2]; break; } }
-  const se = semanas - 500;
-  let an = Math.floor(se / 52);
-  const so = se % 52;
-  if (so >= 13 && so <= 26) an += 0.5; else if (so > 26) an += 1.0;
-  const cb = sbc * pc * 365, inc = sbc * pi * 365 * an, sc = cb + inc;
-  let pa = beneficiarios <= 0 ? 15 : 15 + Math.max(0, beneficiarios - 1) * 10;
-  const sa  = sc * (1 + pa / 100);
-  const vej = sa * 1.11;
-  const pe  = 75 + ((edad - 60) * 5);
-  return Math.max((vej * pe / 100) / 12, M40_PMG);
-}
-
-// ════════════════════════════════════════════════════════════════════════════════
-// MOTOR 2 — SBC2 ponderado 250 semanas
-// ════════════════════════════════════════════════════════════════════════════════
-function m40_sbc2_250(semanasM40, salM40, sbc1) {
-  const V = 250;
-  if (semanasM40 >= V) return salM40;
-  return (semanasM40 * salM40 + (V - semanasM40) * sbc1) / V;
-}
-
-// ════════════════════════════════════════════════════════════════════════════════
-// MOTOR 3 — Costo retroactivo mes a mes (alineado al Excel)
-// Aplica: cuotas por año + actualización INPC + recargos SAT + factor ×1.08
-// ════════════════════════════════════════════════════════════════════════════════
-function m40_costo_retroactivo(fechaInicioStr, fechaTerminoStr, umas) {
-  const inicio  = new Date(fechaInicioStr + 'T00:00:00');
-  const termino = new Date(fechaTerminoStr + 'T00:00:00');
-
-  // Aplicar regla del día 17: si inicio.getDate() >= 17, el primer mes pagado es el siguiente
-  let cursor = new Date(inicio);
-  if (cursor.getDate() >= M40_DIA_CORTE) {
-    cursor.setMonth(cursor.getMonth() + 1);
-    cursor.setDate(1);
-  } else {
-    cursor.setDate(1);
-  }
-
-  const hoy = new Date();
-  let cuotaBase = 0, actualizacion = 0, recargos = 0;
-  const mesesDetalle = [];
-
-  while (cursor <= termino) {
-    const anio = cursor.getFullYear();
-    const mes  = cursor.getMonth();
-
-    // UMA proyectada de ese año
-    const umaAnio   = m40_uma_año(anio);
-    const salDia    = Math.min(umas, M40_TOPE_UMAS) * umaAnio;
-    const salMes    = salDia * 30.4;
-    const cuotaPct  = m40_cuota_año(anio);
-    const cuotaMes  = salMes * cuotaPct;
-    cuotaBase += cuotaMes;
-
-    // Meses transcurridos desde ese mes hasta hoy (para recargos)
-    const mesesAtraso = Math.max(0,
-      (hoy.getFullYear() - anio) * 12 + (hoy.getMonth() - mes)
-    );
-
-    // Actualización INPC de ese año
-    const actPct = M40_ACTUALIZACION[anio] || M40_ACT_DEFAULT;
-    const actMes = cuotaMes * actPct * mesesAtraso;
-    actualizacion += actMes;
-
-    // Recargos SAT (tasa depende si es antes o desde 2026)
-    const recargoPct = anio < 2026 ? M40_RECARGO_ANTES_2026 : M40_RECARGO_DESDE_2026;
-    const recargoMes = cuotaMes * recargoPct * mesesAtraso;
-    recargos += recargoMes;
-
-    mesesDetalle.push({ anio, mes, cuotaMes, umaAnio, salDia });
-
-    // Avanzar mes
-    cursor.setMonth(cursor.getMonth() + 1);
-  }
-
-  // Factor ×1.08 sobre actualización y recargos (del Excel)
-  const costoTotal = cuotaBase + (actualizacion * 1.08) + (recargos * 1.08);
-  const recuperacionAfore = costoTotal * M40_AFORE_PCT;
-  const costoNeto = costoTotal - recuperacionAfore;
-
-  return { cuotaBase, actualizacion, recargos, costoTotal, recuperacionAfore, costoNeto, mesesDetalle };
-}
-
-// ════════════════════════════════════════════════════════════════════════════════
-// MOTOR 4 — Financiamiento: cuotas mensuales descontadas de la pensión
-// ════════════════════════════════════════════════════════════════════════════════
-function m40_financiamiento(costoNeto, gananciaM40) {
-  // Tasa interna de referencia del mercado (~5.68% + IVA mensual)
-  const tasaMes = 0.0568 * 1.16;
-  const mesesMax = 60;
-  // Cuota que cabe siendo máx 30% de la ganancia mensual
-  const cuotaMaxPorGanancia = gananciaM40 * 0.30;
-  // Calcular cuota fija con amortización francesa
-  const cuotaCalc = costoNeto * (tasaMes / (1 - Math.pow(1 + tasaMes, -mesesMax)));
-  const cuota = Math.min(cuotaCalc, cuotaMaxPorGanancia);
-  // Meses reales de pago
-  const mesesPago = cuota > 0
-    ? Math.min(mesesMax, Math.ceil(Math.log(cuota / (cuota - costoNeto * tasaMes)) / Math.log(1 + tasaMes)))
-    : mesesMax;
-  return { cuota: Math.round(cuota), mesesPago: isNaN(mesesPago) || !isFinite(mesesPago) ? mesesMax : mesesPago };
-}
-
-// ════════════════════════════════════════════════════════════════════════════════
-// SINCRONIZACIÓN DE FECHAS
-// ════════════════════════════════════════════════════════════════════════════════
-function m40p_sync_inicio() {
-  const b = document.getElementById('m40p_fecha_baja').value;
-  if (!b) return;
-  const d = new Date(b + 'T00:00:00');
-  d.setDate(d.getDate() + 1);
-  document.getElementById('m40p_fecha_inicio').value = d.toISOString().split('T')[0];
-}
-
-function m40p_validar_tope() {
-  const b = document.getElementById('m40p_fecha_baja').value;
-  const t = document.getElementById('m40p_fecha_termino').value;
-  if (!b || !t) return;
-  const meses = (new Date(t) - new Date(b)) / (1000 * 60 * 60 * 24) / 30.4;
-  if (meses > 60) {
-    alert('⚠️ La Modalidad 40 permite máximo 5 años (60 meses) desde la baja.');
-    document.getElementById('m40p_fecha_termino').value = '';
-  }
-}
-
-function m40e_uma_real(i) {
-  const u = Math.min(parseFloat(document.getElementById('m40e' + i + '_umas').value) || 0, M40_TOPE_UMAS);
-  document.getElementById('m40e' + i + '_sal_dia').textContent =
-    '$' + (u * M40_UMA_BASE).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-// ════════════════════════════════════════════════════════════════════════════════
-// CÁLCULO PRINCIPAL — Los 3 escenarios
-// ════════════════════════════════════════════════════════════════════════════════
-function m40_calcular() {
-  // Leer datos del trabajador (del Paso 2 o del Paso 3 si están vacíos)
-  const edad     = parseInt(document.getElementById('v_edad')?.value) || 60;
-  const semActual= parseInt(document.getElementById('v_semanas')?.value) || 0;
-  const sbc1     = parseFloat(document.getElementById('v_salario')?.value) || 0;
-  const benef    = (parseInt(document.getElementById('v_esposa')?.value)||0) +
-                   (parseInt(document.getElementById('v_hijos')?.value)||0);
-
-  const fechaInicio  = document.getElementById('m40p_fecha_inicio').value;
-  const fechaTermino = document.getElementById('m40p_fecha_termino').value;
-
-  if (!sbc1 || sbc1 <= 0) { alert('Completa el Paso 2 con el salario del trabajador.'); return; }
-  if (!fechaInicio)        { alert('Captura la fecha de baja.'); return; }
-  if (!fechaTermino)       { alert('Captura la fecha de término de M40.'); return; }
-
-  // Pensión SIN M40 (base de comparación)
-  const pensionSin = m40_pension_ley73(sbc1, semActual, edad, benef);
-
-  const coloresRes = [
-    'linear-gradient(150deg,#43a047,#2e7d32)',
-    'linear-gradient(150deg,#1e88e5,#1565c0)',
-    'linear-gradient(150deg,#fb8c00,#ef6c00)'
-  ];
-  const coloresDet = ['#4caf50','#2196f3','#ff9800'];
-  const nombresEsc = ['Escenario 1','Escenario 2','Escenario 3'];
-
-  let htmlComp = '', htmlDet = '', htmlProyec = '';
-
-  for (let i = 1; i <= 3; i++) {
-    const anios = parseInt(document.getElementById('m40e' + i + '_anios').value) || 0;
-    const meses = parseInt(document.getElementById('m40e' + i + '_meses').value) || 0;
-    let umas    = Math.min(parseFloat(document.getElementById('m40e' + i + '_umas').value) || 1, M40_TOPE_UMAS);
-
-    // Validar: UMAs no pueden dar salario menor al SBC actual
-    const salM40Base = umas * M40_UMA_BASE;
-    if (salM40Base < sbc1) {
-      umas = Math.ceil(sbc1 / M40_UMA_BASE);
-      document.getElementById('m40e' + i + '_umas').value = umas;
-      m40e_uma_real(i);
+    if (fbaja && !document.getElementById('m40_fecha_baja').value){
+      document.getElementById('m40_fecha_baja').value = fbaja;
+      m40_calcInicio();
     }
+    // Pensión actual sin M40
+    const pa = pensionActual();
+    document.getElementById('m40_d_pension_actual').textContent = pa>0 ? fMon(pa) : '—';
+  }
 
-    const mesesTot   = anios * 12 + meses;
-    const semanasM40 = Math.round(mesesTot * 4.345);
-    const salM40Dia  = Math.min(umas, M40_TOPE_UMAS) * M40_UMA_BASE;
-    const sbc2       = m40_sbc2_250(semanasM40, salM40Dia, sbc1);
-    const pensionCon = m40_pension_ley73(sbc2, semActual + semanasM40, edad, benef);
-    const ganancia   = pensionCon - pensionSin;
+  // ── Beneficiarios del Paso 2 ──
+  function benef(){
+    return {
+      e:  p2num('v_esposa'),
+      h:  p2num('v_hijos'),
+      hd: p2num('v_hijos_discapacidad'),
+      p:  p2num('v_padres')
+    };
+  }
 
-    // Costo retroactivo mes a mes (motor exacto del Excel)
-    const retro = m40_costo_retroactivo(fechaInicio, fechaTermino, umas);
-    const mesesRecup = ganancia > 0 ? Math.ceil(retro.costoNeto / ganancia) : null;
+  // ── Pensión actual (sin M40), reusando el motor del Paso 2 ──
+  function pensionActual(){
+    if (typeof calcularPensionLocal !== 'function') return 0;
+    const edad = p2num('v_edad')||60, sem = p2num('v_semanas')||0, sbc = p2num('v_salario')||0;
+    if (sbc<=0) return 0;
+    const pmg = (typeof pmgSegunBaja==='function')? pmgSegunBaja() : undefined;
+    const uma = (typeof umaSegunBaja==='function')? umaSegunBaja() : undefined;
+    const b = benef();
+    const r = calcularPensionLocal(edad, sem, sbc, b.e, b.h, b.hd, b.p, pmg, uma);
+    return r ? r.pension_final : 0;
+  }
 
-    // Financiamiento (cuotas)
-    const fin = ganancia > 0 ? m40_financiamiento(retro.costoNeto, ganancia) : null;
+  // ── 3 · Fechas ──
+  window.m40_calcInicio = function(){
+    const b = document.getElementById('m40_fecha_baja').value;
+    if (!b) return;
+    const d = new Date(b+'T00:00:00'); d.setDate(d.getDate()+1);
+    document.getElementById('m40_fecha_inicio').value = d.toISOString().split('T')[0];
+  };
+  window.m40_validarTermino = function(){
+    const b = document.getElementById('m40_fecha_baja').value;
+    const t = document.getElementById('m40_fecha_termino').value;
+    if (!b || !t) return;
+    const meses = (new Date(t) - new Date(b)) / (1000*60*60*24*30.4375);
+    if (meses > 60){
+      alert('⚠️ Modalidad 40: máximo 5 años (60 meses) desde la baja.');
+      document.getElementById('m40_fecha_termino').value = '';
+    }
+  };
 
-    // Proyección a futuro con inflación (a 10 y 20 años)
-    const pension10  = pensionCon * Math.pow(1 + M40_INFLACION, 10);
-    const pension20  = pensionCon * Math.pow(1 + M40_INFLACION, 20);
-    const acu20      = pensionCon * 12 * ((Math.pow(1 + M40_INFLACION, 20) - 1) / M40_INFLACION);
-    const cfg = anios + 'a ' + meses + 'm · ' + umas + ' UMAs';
-    const c   = i - 1;
-
-    // ── Columna COMPARATIVA ──
-    htmlComp += `
-      <div style="background:${coloresRes[c]};border-radius:10px;padding:1.2rem;color:#fff;">
-        <div style="font-size:0.75rem;opacity:0.85;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.2rem;">${nombresEsc[c]}</div>
-        <div style="font-size:0.9rem;font-weight:800;margin-bottom:1rem;">${cfg}</div>
-        <div style="font-size:0.72rem;opacity:0.85;text-transform:uppercase;letter-spacing:0.5px;">Nuevo SBC2 (día)</div>
-        <div style="font-size:1.7rem;font-weight:900;line-height:1.1;margin-bottom:0.8rem;">${m40_fmt(sbc2)}</div>
-        <div style="font-size:0.72rem;opacity:0.85;text-transform:uppercase;letter-spacing:0.5px;">Pensión mensual con M40</div>
-        <div style="font-size:2rem;font-weight:900;line-height:1.1;margin-bottom:0.9rem;">${m40_fmt(pensionCon)}</div>
-        <div style="border-top:1px solid rgba(255,255,255,0.25);padding-top:0.8rem;">
-          <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.15);">
-            <span>Semanas M40</span><span style="font-weight:800;">${semanasM40}</span>
+  // ── 4 · Inputs de escenarios (generados) ──
+  const COLORES = ['#7b1fa2','#1976d2','#00897b'];
+  function pintarInputs(){
+    const cont = document.getElementById('m40_escenarios_inputs');
+    const defaults = [{a:2,m:0,u:15},{a:3,m:0,u:20},{a:5,m:0,u:25}];
+    let html='';
+    for (let i=0;i<NUM_ESC;i++){
+      const c=COLORES[i], d=defaults[i];
+      html += `
+      <div style="background:#fafafa;border-radius:10px;padding:1.1rem;border-top:4px solid ${c};">
+        <div style="font-weight:800;color:${c};font-size:0.92rem;margin-bottom:0.9rem;">Escenario ${i+1}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.7rem;">
+          <div>
+            <label style="font-size:0.7rem;color:#90a4ae;font-weight:700;display:block;margin-bottom:0.25rem;">AÑOS</label>
+            <input type="number" id="esc${i}_anos" min="0" max="5" value="${d.a}" oninput="m40_salVivo(${i})" style="width:100%;padding:0.5rem;border:1px solid #cfd8dc;border-radius:6px;font-weight:600;box-sizing:border-box;">
           </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.15);">
-            <span>Pensión sin M40</span><span style="font-weight:800;">${m40_fmt(pensionSin)}</span>
+          <div>
+            <label style="font-size:0.7rem;color:#90a4ae;font-weight:700;display:block;margin-bottom:0.25rem;">MESES</label>
+            <input type="number" id="esc${i}_meses" min="0" max="11" value="${d.m}" oninput="m40_salVivo(${i})" style="width:100%;padding:0.5rem;border:1px solid #cfd8dc;border-radius:6px;font-weight:600;box-sizing:border-box;">
           </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:0.3rem 0;">
-            <span>Ganancia mensual</span><span style="font-weight:800;">+${m40_fmt(ganancia)}</span>
+        </div>
+        <label style="font-size:0.7rem;color:#90a4ae;font-weight:700;display:block;margin-bottom:0.25rem;">UMAs A PAGAR (1–25)</label>
+        <input type="number" id="esc${i}_umas" min="1" max="25" value="${d.u}" oninput="m40_salVivo(${i})" style="width:100%;padding:0.5rem;border:1px solid #cfd8dc;border-radius:6px;font-weight:600;box-sizing:border-box;">
+        <div style="margin-top:0.6rem;background:${c}18;border-radius:6px;padding:0.4rem 0.6rem;font-size:0.78rem;color:${c};font-weight:700;text-align:center;">
+          Salario M40: $<span id="esc${i}_sal">${(d.u*UMA_DIA).toFixed(2)}</span>/día
+        </div>
+      </div>`;
+    }
+    cont.innerHTML = html;
+  }
+  window.m40_salVivo = function(i){
+    let u = parseInt(document.getElementById('esc'+i+'_umas').value)||0;
+    if (u>TOPE_UMAS){ u=TOPE_UMAS; document.getElementById('esc'+i+'_umas').value=TOPE_UMAS; }
+    const el=document.getElementById('esc'+i+'_sal');
+    if (el) el.textContent = (u*UMA_DIA).toFixed(2);
+  };
+
+  // ── SBC2 ponderado a 250 semanas ──
+  function sbc2(semM40, salM40, sbc1){
+    if (semM40 >= VENTANA) return salM40;
+    const semHist = VENTANA - semM40;
+    return (semM40*salM40 + semHist*sbc1) / VENTANA;
+  }
+
+  // ── Costo retroactivo (proporcional a las UMAs), mes a mes ──
+  function costoRetro(salDia, numMeses){
+    const hoy = new Date();
+    let cuotaT=0, inflaT=0, recaT=0;
+    for (let i=numMeses; i>=1; i--){
+      const f = new Date(hoy); f.setMonth(f.getMonth()-i);
+      const a = f.getFullYear();
+      const cuota = salDia * DIAS_MES * cuotaPct(a);   // cuota proporcional al salario
+      cuotaT += cuota;
+      inflaT += cuota * (i * inflaMes(a));
+      recaT  += cuota * (i * tasaReca(a));
+    }
+    const bruto  = cuotaT + inflaT + recaT;
+    const margen = bruto * MARGEN;
+    const total  = bruto + margen;
+    const afore  = total * AFORE_REC;
+    return { cuotaT, inflaT, recaT, margen, total, afore, neto: total-afore };
+  }
+
+  // ── Cálculo de un escenario completo ──
+  function calcEscenario(i, sbc1, edad, semActuales){
+    const anos  = parseInt(document.getElementById('esc'+i+'_anos').value)||0;
+    const meses = parseInt(document.getElementById('esc'+i+'_meses').value)||0;
+    let   umas  = parseInt(document.getElementById('esc'+i+'_umas').value)||0;
+    if (umas>TOPE_UMAS) umas=TOPE_UMAS;
+
+    const totalMeses = anos*12 + meses;
+    const semM40 = Math.round(totalMeses * (365.25/12) / 7);   // semanas equivalentes
+    const semM40v = Math.min(semM40, VENTANA);
+    const salDia = umas * UMA_DIA;
+
+    const nuevoSBC2 = sbc2(semM40v, salDia, sbc1);
+    const semTotales = semActuales + semM40;
+    const edadRetiro = Math.min(65, edad + anos + meses/12);
+
+    // Pensión proyectada con M40 (motor del Paso 2)
+    let pensionM40 = 0;
+    if (typeof calcularPensionLocal === 'function'){
+      const pmg = (typeof pmgSegunBaja==='function')? pmgSegunBaja() : undefined;
+      const uma = (typeof umaSegunBaja==='function')? umaSegunBaja() : undefined;
+      const b = benef();
+      const r = calcularPensionLocal(edadRetiro, semTotales, nuevoSBC2, b.e, b.h, b.hd, b.p, pmg, uma);
+      pensionM40 = r ? r.pension_final : 0;
+    }
+    const costo = costoRetro(salDia, totalMeses);
+
+    return { i, anos, meses, umas, totalMeses, semM40:semM40v, semHist:VENTANA-semM40v,
+             salDia, nuevoSBC2, semTotales, edadRetiro, pensionM40, costo };
+  }
+
+  // ── 5+6 · Calcular todo ──
+  window.m40_calcularTodo = function(){
+    const sbc1 = p2num('v_salario');
+    const edad = p2num('v_edad')||60;
+    const semA = p2num('v_semanas')||0;
+    if (sbc1<=0){ alert('Primero completa el Paso 2 (salario y semanas).'); return; }
+
+    const pa = pensionActual();
+    const esc = [];
+    for (let i=0;i<NUM_ESC;i++) esc.push(calcEscenario(i, sbc1, edad, semA));
+
+    // --- Resultados lado a lado ---
+    let g='';
+    esc.forEach((e,idx)=>{
+      const c=COLORES[idx];
+      const mejora = e.pensionM40 - pa;
+      const pct = pa>0 ? (mejora/pa*100) : 0;
+      g += `
+      <div style="background:#fff;border:2px solid ${c};border-radius:12px;overflow:hidden;">
+        <div style="background:${c};color:#fff;padding:0.7rem 1rem;font-weight:800;font-size:0.9rem;">
+          Escenario ${idx+1} · ${e.anos}a ${e.meses}m · ${e.umas} UMAs
+        </div>
+        <div style="padding:1.1rem;">
+          <div style="text-align:center;margin-bottom:0.9rem;">
+            <div style="font-size:0.72rem;color:#90a4ae;font-weight:700;text-transform:uppercase;">Pensión con M40</div>
+            <div style="font-size:1.7rem;font-weight:900;color:${c};">${fMon(e.pensionM40)}</div>
+            <div style="font-size:0.8rem;color:${mejora>=0?'#2e7d32':'#c62828'};font-weight:700;">
+              ${mejora>=0?'▲':'▼'} ${fMon(Math.abs(mejora))}/mes (${pct.toFixed(1)}%)
+            </div>
+          </div>
+          <table style="width:100%;font-size:0.8rem;border-collapse:collapse;">
+            <tr><td style="padding:0.3rem 0;color:#607d8b;">Nuevo SBC2</td><td style="text-align:right;font-weight:700;">${fMon(e.nuevoSBC2)}/día</td></tr>
+            <tr><td style="padding:0.3rem 0;color:#607d8b;">Semanas M40</td><td style="text-align:right;font-weight:700;">${e.semM40} sem</td></tr>
+            <tr><td style="padding:0.3rem 0;color:#607d8b;">Inversión neta</td><td style="text-align:right;font-weight:700;color:#e65100;">${fMon(e.costo.neto)}</td></tr>
+          </table>
+        </div>
+      </div>`;
+    });
+    document.getElementById('m40_resultados_grid').innerHTML = g;
+    document.getElementById('m40_resultados').style.display = 'block';
+
+    // --- Detalle completo de los 3 ---
+    let d = `<div style="margin-bottom:0.8rem;padding:0.7rem 1rem;background:#eceff1;border-radius:8px;font-size:0.82rem;color:#546e7a;">
+      Pensión actual sin Modalidad 40: <strong>${fMon(pa)}/mes</strong> · referencia para todas las comparativas.
+    </div>`;
+    esc.forEach((e,idx)=>{
+      const c=COLORES[idx];
+      const mejora = e.pensionM40 - pa;
+      const recup = mejora>0 ? e.costo.neto/mejora : null;
+      const verdicto = recup===null ? 'No conviene' :
+                       recup<=16 ? 'Excelente inversión' :
+                       recup<=24 ? 'Buena inversión' :
+                       recup<=36 ? 'Inversión regular' : 'Recuperación lenta';
+      const verColor = recup===null||recup>36 ? '#c62828' : recup<=24 ? '#2e7d32' : '#ef6c00';
+      d += `
+      <div style="background:#fff;border:1px solid #e0e0e0;border-left:5px solid ${c};border-radius:10px;padding:1.2rem 1.4rem;margin-bottom:1rem;">
+        <div style="font-weight:800;color:${c};font-size:1rem;margin-bottom:0.9rem;">
+          Escenario ${idx+1} — ${e.anos} años ${e.meses} meses · ${e.umas} UMAs ($${e.salDia.toFixed(2)}/día)
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;">
+
+          <div>
+            <div style="font-size:0.78rem;font-weight:800;color:#455a64;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.5px;">Composición de las 250 semanas</div>
+            <table style="width:100%;font-size:0.82rem;border-collapse:collapse;">
+              <tr style="border-bottom:1px solid #eee;"><td style="padding:0.35rem 0;color:#ff9800;font-weight:700;">M40 (nuevas)</td><td style="text-align:right;">${e.semM40} sem × ${fMon(e.salDia)}</td></tr>
+              <tr style="border-bottom:1px solid #eee;"><td style="padding:0.35rem 0;color:#4caf50;font-weight:700;">Históricas</td><td style="text-align:right;">${e.semHist} sem × ${fMon(sbc1)}</td></tr>
+              <tr style="border-top:2px solid ${c};"><td style="padding:0.4rem 0;font-weight:800;">SBC2 (÷250)</td><td style="text-align:right;font-weight:900;color:${c};">${fMon(e.nuevoSBC2)}/día</td></tr>
+            </table>
+            <div style="margin-top:0.6rem;font-size:0.78rem;color:#607d8b;">
+              Equivale a <strong>${(e.nuevoSBC2/UMA_DIA).toFixed(2)} UMAs</strong> · vs SBC original ${fMon(sbc1)}
+              (<strong style="color:${e.nuevoSBC2>=sbc1?'#2e7d32':'#c62828'};">${((e.nuevoSBC2-sbc1)/sbc1*100).toFixed(1)}%</strong>)
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:0.78rem;font-weight:800;color:#455a64;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.5px;">Costo retroactivo (${e.totalMeses} meses)</div>
+            <table style="width:100%;font-size:0.82rem;border-collapse:collapse;">
+              <tr><td style="padding:0.3rem 0;color:#607d8b;">Cuotas</td><td style="text-align:right;">${fMon(e.costo.cuotaT)}</td></tr>
+              <tr><td style="padding:0.3rem 0;color:#607d8b;">Actualización</td><td style="text-align:right;">+${fMon(e.costo.inflaT)}</td></tr>
+              <tr><td style="padding:0.3rem 0;color:#607d8b;">Recargos</td><td style="text-align:right;">+${fMon(e.costo.recaT)}</td></tr>
+              <tr><td style="padding:0.3rem 0;color:#607d8b;">Margen seguridad 8%</td><td style="text-align:right;">+${fMon(e.costo.margen)}</td></tr>
+              <tr style="border-top:1px solid #ccc;"><td style="padding:0.3rem 0;font-weight:700;">Costo total</td><td style="text-align:right;font-weight:700;">${fMon(e.costo.total)}</td></tr>
+              <tr><td style="padding:0.3rem 0;color:#2e7d32;">− Recuperación AFORE 20%</td><td style="text-align:right;color:#2e7d32;">−${fMon(e.costo.afore)}</td></tr>
+              <tr style="border-top:2px solid ${c};"><td style="padding:0.4rem 0;font-weight:800;">Inversión neta</td><td style="text-align:right;font-weight:900;color:#e65100;">${fMon(e.costo.neto)}</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;background:#fafafa;border-radius:8px;padding:0.9rem;">
+          <div style="text-align:center;">
+            <div style="font-size:0.7rem;color:#90a4ae;font-weight:700;text-transform:uppercase;">Mejora mensual</div>
+            <div style="font-size:1.15rem;font-weight:900;color:${mejora>=0?'#2e7d32':'#c62828'};">${fMon(mejora)}</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:0.7rem;color:#90a4ae;font-weight:700;text-transform:uppercase;">Recuperas en</div>
+            <div style="font-size:1.15rem;font-weight:900;color:#455a64;">${recup===null?'—':Math.ceil(recup)+' meses'}</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:0.7rem;color:#90a4ae;font-weight:700;text-transform:uppercase;">Veredicto</div>
+            <div style="font-size:0.95rem;font-weight:900;color:${verColor};">${verdicto}</div>
           </div>
         </div>
       </div>`;
+    });
+    document.getElementById('m40_detalle_cont').innerHTML = d;
+    document.getElementById('m40_detalle').style.display = 'block';
+  };
 
-    // ── Columna DETALLE ──
-    htmlDet += `
-      <div style="background:#fafafa;border-radius:9px;padding:1.1rem;border-top:4px solid ${coloresDet[c]};">
-        <div style="font-weight:800;font-size:0.82rem;color:${coloresDet[c]};margin-bottom:0.9rem;text-transform:uppercase;letter-spacing:0.4px;">${nombresEsc[c]} · ${cfg}</div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:0.35rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#555;">Salario M40 / día</span><span style="font-weight:800;">${m40_fmt(salM40Dia)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:0.35rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#555;">Meses de inversión</span><span style="font-weight:800;">${mesesTot}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:0.35rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#555;">Cuotas del periodo</span><span style="font-weight:800;">${m40_fmt0(retro.cuotaBase)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:0.35rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#555;">Actualización (×1.08)</span><span style="font-weight:800;">${m40_fmt0(retro.actualizacion * 1.08)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:0.35rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#555;">Recargos SAT (×1.08)</span><span style="font-weight:800;">${m40_fmt0(retro.recargos * 1.08)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.4rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#333;font-weight:800;">Costo total</span><span style="font-weight:900;color:${coloresDet[c]};">${m40_fmt0(retro.costoTotal)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:0.35rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#555;">Recuperación AFORE (19.85%)</span><span style="font-weight:800;">−${m40_fmt0(retro.recuperacionAfore)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.4rem 0;border-bottom:2px solid ${coloresDet[c]};">
-          <span style="color:#333;font-weight:800;">Inversión neta</span><span style="font-weight:900;color:${coloresDet[c]};">${m40_fmt0(retro.costoNeto)}</span>
-        </div>
-        <div style="background:#fff;border-radius:7px;padding:0.7rem;text-align:center;margin-top:0.8rem;border:1px solid #eee;">
-          <div style="font-size:1.6rem;font-weight:900;color:#ff9800;">${mesesRecup !== null ? mesesRecup : '—'}</div>
-          <div style="font-size:0.72rem;color:#666;text-transform:uppercase;letter-spacing:0.4px;">${mesesRecup !== null ? 'meses para recuperar' : 'sin ganancia'}</div>
-        </div>
-        ${fin && fin.cuota > 0 ? `
-        <div style="background:#e8f5e9;border-radius:7px;padding:0.7rem;margin-top:0.8rem;border:1px solid #c8e6c9;">
-          <div style="font-size:0.72rem;color:#2e7d32;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:0.4rem;">💳 Opción de financiamiento</div>
-          <div style="font-size:0.82rem;color:#333;">Se descuentan <strong>${m40_fmt(fin.cuota)}/mes</strong> de tu pensión durante <strong>${fin.mesesPago} meses</strong>.</div>
-          <div style="font-size:0.68rem;color:#888;margin-top:0.4rem;">* Sujeto a aprobación. Tasa de referencia de mercado aplicable.</div>
-        </div>` : ''}
-      </div>`;
-
-    // ── Columna PROYECCIÓN ──
-    htmlProyec += `
-      <div style="background:#fafafa;border-radius:9px;padding:1.1rem;border-top:4px solid ${coloresDet[c]};">
-        <div style="font-weight:800;font-size:0.82rem;color:${coloresDet[c]};margin-bottom:0.9rem;text-transform:uppercase;letter-spacing:0.4px;">${nombresEsc[c]}</div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:0.35rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#555;">Pensión hoy</span><span style="font-weight:800;">${m40_fmt(pensionCon)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:0.35rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#555;">A 10 años (inflación 4.5%)</span><span style="font-weight:800;color:${coloresDet[c]};">${m40_fmt(pension10)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.83rem;padding:0.35rem 0;border-bottom:1px solid #eee;">
-          <span style="color:#555;">A 20 años (inflación 4.5%)</span><span style="font-weight:800;color:${coloresDet[c]};">${m40_fmt(pension20)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.85rem;padding:0.4rem 0;">
-          <span style="color:#333;font-weight:800;">Acumulado a 20 años</span><span style="font-weight:900;color:${coloresDet[c]};">${m40_fmt0(acu20)}</span>
-        </div>
-        <div style="font-size:0.7rem;color:#999;margin-top:0.6rem;">📌 Proyección informativa con inflación del 4.5% anual. No garantizada.</div>
-      </div>`;
+  // ── Sincronizar desglose Paso 2 (corregido: antes estaba sin nombre) ──
+  function syncDesgloseDisplay(){
+    const map = [['out_cuantia_basica','out_cuantia_basica_display'],
+                 ['out_incrementos','out_incrementos_display'],
+                 ['out_ayuda','out_ayuda_display'],
+                 ['out_decreto','out_decreto_display'],
+                 ['out_subtotal','out_subtotal_display']];
+    map.forEach(([src,dst])=>{
+      const s=document.getElementById(src), d=document.getElementById(dst);
+      if (s && d) d.textContent = s.textContent;
+    });
   }
 
-  document.getElementById('m40_grid_comparativa').innerHTML = htmlComp;
-  document.getElementById('m40_grid_detalle').innerHTML     = htmlDet;
-  document.getElementById('m40_grid_proyeccion').innerHTML  = htmlProyec;
-  document.getElementById('m40_resultados_wrap').style.display = 'block';
-  document.getElementById('m40_resultados_wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ════════════════════════════════════════════════════════════════════════════════
-// INICIALIZACIÓN — Arrastrar datos del Paso 2
-// ════════════════════════════════════════════════════════════════════════════════
-function m40_init() {
-  // Arrastrar datos del Paso 2
-  const nombre  = document.getElementById('v_nombre')?.value   || '—';
-  const edad    = document.getElementById('v_edad')?.value     || '—';
-  const semanas = document.getElementById('v_semanas')?.value  || '—';
-  const sbc1    = parseFloat(document.getElementById('v_salario')?.value) || 0;
-  const fechaBaja = document.getElementById('v_fecha_baja')?.value || '';
-
-  document.getElementById('m40d_nombre').textContent  = nombre;
-  document.getElementById('m40d_edad').textContent    = edad !== '—' ? edad + ' años' : '—';
-  document.getElementById('m40d_semanas').textContent = semanas;
-  document.getElementById('m40d_sbc1').textContent    = sbc1 > 0 ? sbc1.toFixed(2) : '—';
-
-  // Arrastrar fecha de baja si existe en Paso 2
-  if (fechaBaja) {
-    document.getElementById('m40p_fecha_baja').value = fechaBaja;
-    m40p_sync_inicio();
+  // ── Init ──
+  function init(){
+    pintarInputs();
+    arrastrar();
+    // Re-arrastra cuando cambian datos clave del Paso 2
+    ['v_nombre','v_edad','v_semanas','v_salario','v_fecha_baja'].forEach(id=>{
+      const el=document.getElementById(id);
+      if (el) el.addEventListener('change', arrastrar);
+    });
+    const out = document.getElementById('out_pension_basica');
+    if (out){ new MutationObserver(()=>{ syncDesgloseDisplay(); arrastrar(); })
+              .observe(out,{childList:true,subtree:true,characterData:true}); }
   }
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 
-  // Fecha de término por defecto = hoy
-  const hoy = new Date().toISOString().split('T')[0];
-  if (!document.getElementById('m40p_fecha_termino').value) {
-    document.getElementById('m40p_fecha_termino').value = hoy;
-  }
-
-  // Inicializar display de UMAs
-  m40e_uma_real(1); m40e_uma_real(2); m40e_uma_real(3);
-}
-
-// Ejecutar init cuando el DOM esté listo
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', m40_init);
-} else {
-  m40_init();
-}
-
-// Re-init cuando el Paso 2 termina de calcular (escuchar botón de calcular pensión)
-document.addEventListener('click', function(e) {
-  if (e.target && (e.target.id === 'btn-calcular' || e.target.closest('#btn-calcular'))) {
-    setTimeout(m40_init, 300);
-  }
-});
+})();
 </script>
-
-
-<script defer="" src="./Profesional_files/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;7a0382fc1fd34ad38271f511207a7029&quot;,&quot;r&quot;:1,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}" crossorigin="anonymous"></script>
 
 
 </body></html>
