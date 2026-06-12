@@ -1118,7 +1118,7 @@ El sistema detectará:
                 <div id="curp-edad-wrap" style="display:none;margin:0 0 12px 0;
                     background:#eef3fb;border:1px solid #c8d8ee;border-radius:8px;padding:12px 16px;">
                     <div style="font-size:11px;color:#002147;font-weight:700;margin-bottom:4px;letter-spacing:0.5px;text-transform:uppercase;">
-                        📅 Edad actual del trabajador
+                        📅 Edad actual del trabajador: <span id="edad-anios-display" style="color:#002147;font-weight:900;">—</span> años
                     </div>
                     <div id="curp-edad-txt" style="font-size:18px;color:#002147;font-weight:800;font-family:'Courier New',monospace;"></div>
                     <div id="curp-fnac-txt" style="font-size:11px;color:#666;margin-top:3px;"></div>
@@ -1144,7 +1144,7 @@ El sistema detectará:
                     <label>Fecha de Baja en el IMSS:</label>
                     <input type="date" id="v_fecha_baja"
                         style="border:1.5px solid #f59e0b;border-radius:6px;padding:0.5rem 0.7rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;width:100%;"
-                        onchange="v_sincronizarEstatusAMod40()">
+                        onchange="v_sincronizarEstatusAMod40(); m40_actualizarInicioRetro();">
                     <div style="font-size:0.72rem;color:#92400e;margin-top:3px;">
                         Esta fecha se usará en el cálculo de Modalidad 40.
                     </div>
@@ -1445,7 +1445,7 @@ El sistema detectará:
                         ✅ <strong>El costo retroactivo ya incluye actualización por inflación (4.50% anual) y recargos moratorios (1.47% mensual)</strong> conforme al Art. 17-A y 21 del Código Fiscal de la Federación.
                     </div>
                     <!-- Input oculto para compatibilidad con lógica existente -->
-                    <select id="m40_tipo_pago" style="display:none;" onchange="m40_toggleRetroactivo()">
+                    <select id="m40_tipo_pago" style="display:none;" onchange="m40_toggleRetroactivo(); m40_inicializarFechaTermino()">
                         <option value="recurrente">Pago Recurrente (Mes a Mes)</option>
                         <option value="retroactivo">Pago Retroactivo (Una Exhibición)</option>
                     </select>
@@ -1486,7 +1486,8 @@ El sistema detectará:
                 <!-- FECHA TÉRMINO RETROACTIVO -->
                 <div id="m40_bloque_retro" style="margin-bottom:1rem;display:none;">
                     <label style="font-size:0.75rem;color:rgba(255,255,255,0.6);display:block;margin-bottom:4px;">Fecha de Término del Retroactivo</label>
-                    <input type="date" id="m40_fecha_termino_retro" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:&#39;DM Sans&#39;,sans-serif;" onchange="m40_actualizar()">
+                    <div style="font-size:0.68rem;color:rgba(255,255,255,0.45);margin-bottom:3px;">Hoy es: <span id="m40_hoy_fecha" style="color:rgba(255,255,255,0.7);font-weight:700;"></span></div>
+                    <input type="date" id="m40_fecha_termino_retro" style="width:100%;background:#0d1526;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.5rem 0.7rem;color:#fff;font-size:0.9rem;font-family:'DM Sans',sans-serif;" onchange="m40_actualizar()">
                     <div style="font-size:0.68rem;color:rgba(255,255,255,0.35);margin-top:3px;">Máximo 5 años desde la fecha de baja · Hasta el mes en que realiza el trámite</div>
                 </div>
 
@@ -3005,6 +3006,13 @@ function calcularEdadDesdeCURP() {
         }
         if (meses < 0) { anios--; meses += 12; }
 
+        // Guardar edad en años para uso en M40
+        window._edadActualAnios = anios;
+
+        // Actualizar display de edad en formato simple
+        const edadDisplay = document.getElementById('edad-anios-display');
+        if (edadDisplay) edadDisplay.textContent = anios;
+
         document.getElementById('curp-edad-txt').textContent =
             `${anios} años, ${meses} meses y ${dias} días`;
         document.getElementById('curp-fnac-txt').textContent =
@@ -4062,6 +4070,9 @@ function m40_poblarEdadActual() {
         if (meses < 0) { anios--; meses += 12; }
 
         if (txtEl) txtEl.textContent = anios + ' años, ' + meses + ' meses y ' + dias + ' días';
+        // Guardar edad en años para uso global
+        window._edadActualAnios = anios;
+        
         // Sincronizar con campo de Mod40 si está abierto
         const m40EdadTxt = document.getElementById('m40_edad_actual_txt');
         if (m40EdadTxt) m40EdadTxt.textContent = anios + ' años, ' + meses + ' meses y ' + dias + ' días';
@@ -4492,6 +4503,34 @@ function m40_actualizarInicioRetro() {
     m40_recalcularSemanasRetroactivo();
 }
 
+function m40_inicializarFechaTermino() {
+    const hoy = new Date();
+    const fechaHoyStr = hoy.toISOString().split('T')[0];
+    
+    // Actualizar el display de "hoy es X fecha"
+    const hoyFechaEl = document.getElementById('m40_hoy_fecha');
+    if (hoyFechaEl) {
+        const diaStr = String(hoy.getDate()).padStart(2, '0');
+        const mesStr = String(hoy.getMonth() + 1).padStart(2, '0');
+        const anioStr = hoy.getFullYear();
+        hoyFechaEl.textContent = `${diaStr}/${mesStr}/${anioStr}`;
+    }
+    
+    // Establecer mínimo de fecha término a HOY
+    const fechaTermEl = document.getElementById('m40_fecha_termino_retro');
+    if (fechaTermEl) {
+        fechaTermEl.min = fechaHoyStr;
+        
+        // Si el usuario tiene una fecha anterior a HOY, ajustarla a HOY
+        if (fechaTermEl.value) {
+            const fechaUsuario = new Date(fechaTermEl.value + 'T00:00:00');
+            if (fechaUsuario < hoy) {
+                fechaTermEl.value = fechaHoyStr;
+            }
+        }
+    }
+}
+
 function m40_recalcularSemanasRetroactivo() {
     const tipo = document.getElementById('m40_tipo_pago')?.value || 'recurrente';
     if (tipo !== 'retroactivo') return;
@@ -4603,6 +4642,9 @@ function m40_actualizar() {
     if (tipoEl && tipoEl.value === 'retroactivo' && fechaTermEl && !fechaTermEl.value) {
         fechaTermEl.value = new Date().toISOString().split('T')[0];
     }
+
+    // Inicializar mínimo de fecha término (siempre HOY)
+    m40_inicializarFechaTermino();
 
     // Si estamos en retroactivo, sincronizar fecha inicio = fecha baja + 1 día
     if (tipoEl && tipoEl.value === 'retroactivo') {
