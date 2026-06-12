@@ -2831,11 +2831,15 @@ function v_sincronizarEstatusAMod40() {
 
     // Copiar fecha de baja al campo de Mod40 (tanto retroactivo como recurrente)
     const m40FechaBajaEl = document.getElementById('m40_fecha_baja');
-    if (m40FechaBajaEl && estatus === 'baja' && fechaBaja) {
-        // SIEMPRE copiar fecha de baja desde Paso 2, pero permitir que usuario la ajuste si es diferente
-        if (!m40FechaBajaEl.value || m40FechaBajaEl.value === '') {
+    if (m40FechaBajaEl && estatus === 'baja') {
+        // Copiar fecha de baja SIEMPRE que el usuario esté en estado "baja"
+        // Si tiene valor en v_fecha_baja → copiar automáticamente
+        // Si está vacía → dejar para que usuario la ingrese manualmente
+        if (fechaBaja) {
             m40FechaBajaEl.value = fechaBaja;
         }
+        // IMPORTANTE: No hacer nada si fechaBaja está vacía
+        // Porque el usuario podría estar ingresando la fecha en Paso 2
     } else if (m40FechaBajaEl && estatus === 'activo') {
         // Si es activo: usar hoy internamente
         m40FechaBajaEl.value = new Date().toISOString().split('T')[0];
