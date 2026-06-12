@@ -1070,7 +1070,7 @@ El sistema detectará:
                             <!-- Campo salario de reactivación -->
                             <div id="v_bloque_salario_reactivacion" style="margin-top:0.8rem;background:rgba(146,64,14,0.08);border:1.5px solid #f59e0b;border-radius:8px;padding:0.8rem 1rem;">
                                 <div style="font-size:0.82rem;font-weight:700;color:#92400e;margin-bottom:0.5rem;">
-                                    💼 ¿Con qué salario diario se reactivará el trabajador?
+                                    💼 ¿Con qué salario se reactivará el trabajador?
                                 </div>
                                 <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
                                     <div style="display:flex;align-items:center;gap:0.4rem;background:#fff;border:1.5px solid #f59e0b;border-radius:6px;padding:0.4rem 0.7rem;">
@@ -1118,10 +1118,16 @@ El sistema detectará:
                 <div id="curp-edad-wrap" style="display:none;margin:0 0 12px 0;
                     background:#eef3fb;border:1px solid #c8d8ee;border-radius:8px;padding:12px 16px;">
                     <div style="font-size:11px;color:#002147;font-weight:700;margin-bottom:4px;letter-spacing:0.5px;text-transform:uppercase;">
-                        📅 Edad actual del trabajador: <span id="edad-anios-display" style="color:#002147;font-weight:900;">—</span> años
+                        📅 Edad actual del trabajador
                     </div>
-                    <div id="curp-edad-txt" style="font-size:18px;color:#002147;font-weight:800;font-family:'Courier New',monospace;"></div>
-                    <div id="curp-fnac-txt" style="font-size:11px;color:#666;margin-top:3px;"></div>
+                    <div id="curp-edad-txt" style="font-size:16px;color:#002147;font-weight:800;font-family:'Courier New',monospace;margin-bottom:8px;"></div>
+                    
+                    <div style="font-size:11px;color:#002147;font-weight:700;margin-bottom:3px;letter-spacing:0.5px;text-transform:uppercase;">
+                        ⏳ Tiempo para jubilarse a los 60 años
+                    </div>
+                    <div id="curp-jubilarse-txt" style="font-size:16px;color:#f59e0b;font-weight:800;font-family:'Courier New',monospace;"></div>
+                    
+                    <div id="curp-fnac-txt" style="font-size:11px;color:#666;margin-top:6px;"></div>
                 </div>
 
                 <!-- RENGLÓN 4: Estatus Laboral -->
@@ -2823,20 +2829,16 @@ function v_sincronizarEstatusAMod40() {
         bloqueBajaM40.style.display = estatus === 'baja' ? 'block' : 'none';
     }
 
-    // Copiar fecha de baja al campo de Mod40 solo en mes a mes (retroactivo la captura manualmente)
+    // Copiar fecha de baja al campo de Mod40 (tanto retroactivo como recurrente)
     const m40FechaBajaEl = document.getElementById('m40_fecha_baja');
-    const tipoPagoEl     = document.getElementById('m40_tipo_pago');
-    const esRetroactivo  = tipoPagoEl && tipoPagoEl.value === 'retroactivo';
-    if (m40FechaBajaEl) {
-        if (esRetroactivo) {
-            // En retroactivo: dejar vacío para que el usuario capture la fecha manualmente
-            // No sobreescribir si ya tiene un valor
-        } else if (estatus === 'baja' && fechaBaja) {
+    if (m40FechaBajaEl && estatus === 'baja' && fechaBaja) {
+        // SIEMPRE copiar fecha de baja desde Paso 2, pero permitir que usuario la ajuste si es diferente
+        if (!m40FechaBajaEl.value || m40FechaBajaEl.value === '') {
             m40FechaBajaEl.value = fechaBaja;
-        } else {
-            // Activo: usar hoy internamente
-            m40FechaBajaEl.value = new Date().toISOString().split('T')[0];
         }
+    } else if (m40FechaBajaEl && estatus === 'activo') {
+        // Si es activo: usar hoy internamente
+        m40FechaBajaEl.value = new Date().toISOString().split('T')[0];
     }
 
     // Copiar edad calculada desde CURP al campo de edad en Mod40
@@ -3009,12 +3011,30 @@ function calcularEdadDesdeCURP() {
         // Guardar edad en años para uso en M40
         window._edadActualAnios = anios;
 
-        // Actualizar display de edad en formato simple
-        const edadDisplay = document.getElementById('edad-anios-display');
-        if (edadDisplay) edadDisplay.textContent = anios;
-
+        // Mostrar edad actual: años, meses y días
         document.getElementById('curp-edad-txt').textContent =
             `${anios} años, ${meses} meses y ${dias} días`;
+        
+        // CALCULAR: Años para jubilarse (hasta 60 años)
+        const edadJubilacion = 60;
+        const fec60 = new Date(fnac.getTime());
+        fec60.setFullYear(fec60.getFullYear() + edadJubilacion);
+        
+        let aniospara = fec60.getFullYear() - hoy.getFullYear();
+        let mesespara = fec60.getMonth()    - hoy.getMonth();
+        let diaspara  = fec60.getDate()     - hoy.getDate();
+        
+        if (diaspara < 0) {
+            mesespara--;
+            const ultimoDiaFec60 = new Date(fec60.getFullYear(), fec60.getMonth(), 0).getDate();
+            diaspara += ultimoDiaFec60;
+        }
+        if (mesespara < 0) { aniospara--; mesespara += 12; }
+        
+        // Mostrar tiempo para jubilarse
+        document.getElementById('curp-jubilarse-txt').textContent =
+            `${aniospara} años, ${mesespara} meses y ${diaspara} días`;
+        
         document.getElementById('curp-fnac-txt').textContent =
             `Fecha de nacimiento: ${dd}/${mm}/${anioNac}`;
         wrap.style.display = 'block';
